@@ -592,7 +592,7 @@ function applySkin(body) {
   fitWord();
   mapNote = cur.placeholder ? `Stand-in map · drop ${body.map} into the folder for the real surface` : '';
   document.title = `${body.name} — Solar System`;
-  history.replaceState(null, '', `?body=${body.id}`);
+  if (new URLSearchParams(location.search).get('body') !== body.id) history.pushState(null, '', `?body=${body.id}`);
 }
 function fitWord() {
   if (!cur) return;
@@ -864,7 +864,7 @@ function render(now) {
     zoomK = 1 - io(seg(now, zt0, zt0 + (reduced ? 1 : ZOOM_OUT)));
     if (zoomK <= 0) {
       hideMoons();
-      mode = 'hub'; cur = null; setAct('hub'); document.title = 'Solar System'; history.replaceState(null, '', location.pathname);
+      mode = 'hub'; cur = null; setAct('hub'); document.title = 'Solar System'; if (!pendingBody && location.search.includes('body=')) history.pushState(null, '', location.pathname);
       note.textContent = stdNote();
       if (pendingBody) enter(WORLDS.find(w => w.body === pendingBody));
     }
@@ -1115,6 +1115,12 @@ if (want || qs.get('view') === 'hub') {
     if (mi >= 0 && cur.moons[mi]) focus(cur.moons[mi]);
   }
 }
+// Back / Forward: follow the URL
+addEventListener('popstate', () => {
+  const b = byId(new URLSearchParams(location.search).get('body'));
+  if (b && mode === 'hub') enter(WORLDS.find(w => w.body === b));
+  else if ((mode === 'ex' || mode === 'in') && cur.body !== b) leave(b && b.id);
+});
 if (qs.has('tour')) startTour();
 </script>
 </body>

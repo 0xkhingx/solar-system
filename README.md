@@ -29,6 +29,7 @@ Run locally: `python -m http.server 8765` in this folder, then open `http://loca
 Everything the pages need is in the folder, so it can be copied or hosted anywhere. Only Three.js still comes from a CDN; the fonts (Montserrat, Inter; SIL Open Font License) are in `fonts/`.
 
 - **Planet maps** (`maps/1k_*.jpg`, plus the Moon, Earth's clouds and Saturn's ring strips): James Hastings-Trew's planet maps, fetched from the threex.planets repo. Credit required; check his terms for commercial use. If a file fails to load a procedural stand-in is drawn. To use other maps, replace the files or edit `map` in `bodies.js`.
+- **Earth's night lights** (`maps/1k_earth_night.jpg`): the city-lights texture from the three.js examples (`earth_lights_2048.png`), resized to 1k.
 - **Site photographs** (`photos/`): Earth's four are Wikimedia Commons photographs (CC BY 4.0 / CC BY-SA 2.0, 2.5, 4.0); Mercury, Venus and Mars sites are NASA mission imagery (MESSENGER, Magellan, Viking, Curiosity, Perseverance; public domain), fetched from Commons. Each shows its credit on the landing step. `photos/mars-*.webp` are generated images used for the Mars cards and landing layers. Add a `photo` and `credit` to any site in `bodies.js` to change a picture.
 
 ## Known rough edges
@@ -37,7 +38,6 @@ Everything the pages need is in the folder, so it can be copied or hosted anywhe
 - Moons other than Earth's use a procedural grey surface; real moon maps can be added per moon with a `map` entry in `MOONS`.
 - Venus "photos" are Magellan radar reconstructions with exaggerated heights, which the credit line says.
 - The Sun timeline is still a separate page load.
-- Earth has no night-side city lights: add a night map and a `night: 'maps/…'` entry on Earth in `bodies.js` to turn them on.
 - Three.js loads from a CDN.
 
 Icons: Lucide (ISC licence), inlined as SVG.

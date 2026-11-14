@@ -57,7 +57,7 @@ export const BODIES = [
   {
     id: 'earth', name: 'Earth', word: 'EARTH', eyebrow: 'Home. Seen from', tagline: 'The only ocean world we know',
     map: 'maps/1k_earth.jpg',
-    clouds: 'maps/1k_earth_clouds.jpg',
+    clouds: 'maps/1k_earth_clouds.jpg', night: 'maps/1k_earth_night.jpg',
     proc: {bands: false, pal: ['#0b2a5c', '#17519a', '#3f8a4a', '#8c7a4a', '#e8e8e8'], scale: 2.0},
     palette: {deep: '#03091a', bg: ['#2d74b8', '#15406f', '#081d38', '#03091a'], accent: '#4dd0ff',
       flare: ['rgba(235,245,255,.95)', 'rgba(150,200,255,.42)', 'rgba(100,160,255,.1)'], fog: ['#e9f3ff', '#c6dcf4', '#4a79a8'], scrim: '4,14,32'},
