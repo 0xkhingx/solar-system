@@ -29,17 +29,18 @@ export const PLANET_VS = `
   void main(){ vUv = uv; vObj = normalize(position); vN = normalize(mat3(modelMatrix) * normal);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`;
 export const PLANET_FS = `
-    uniform sampler2D map, night, ringMap; uniform vec2 texel, ringR; uniform vec3 sun, hiDir, tint, hiCol, rimCol, ringN;
-    uniform float hi, hiR, ready, relief, gamma, hasNight;
+    uniform sampler2D map, night, spec, bump, ringMap; uniform vec2 texel, ringR; uniform vec3 sun, hiDir, tint, hiCol, rimCol, ringN;
+    uniform float hi, hiR, ready, relief, gamma, hasNight, hasSpec, hasBump;
     varying vec2 vUv; varying vec3 vObj; varying vec3 vN;
     float luma(vec2 u){ return dot(texture2D(map, u).rgb, vec3(.3,.6,.1)); }
+    float hgt(vec2 u){ return mix(luma(u), texture2D(bump, u).r, hasBump); }   // a real height map when the body has one
     void main(){
       vec3 col = texture2D(map, vUv).rgb; col = pow(col, vec3(gamma)) * tint;
       // relief from the map's own brightness (relief = 0 for gas giants)
       vec3 n = normalize(vN);
       vec3 t = normalize(cross(vec3(0.,1.,0.), n)), b = cross(n, t);
-      float dx = luma(vUv + vec2(texel.x*2.,0.)) - luma(vUv - vec2(texel.x*2.,0.));
-      float dy = luma(vUv + vec2(0.,texel.y*2.)) - luma(vUv - vec2(0.,texel.y*2.));
+      float dx = hgt(vUv + vec2(texel.x*2.,0.)) - hgt(vUv - vec2(texel.x*2.,0.));
+      float dy = hgt(vUv + vec2(0.,texel.y*2.)) - hgt(vUv - vec2(0.,texel.y*2.));
       n = normalize(n - (t*dx + b*dy) * relief);
       float diff = max(dot(n, sun), 0.);
       // the rings' shadow on the body: march from the surface point toward the sun and see if the ring plane is crossed
@@ -50,9 +51,11 @@ export const PLANET_FS = `
           if (tt > 0.) { float rd = length(P + tt * sun);
             if (rd > ringR.x && rd < ringR.y) rs = 1. - texture2D(ringMap, vec2((rd - ringR.x) / (ringR.y - ringR.x), .5)).a * .85; } }
       }
-      vec3 lit = col * (vec3(1.5,1.32,1.18) * pow(diff, .85) * rs + vec3(.2,.09,.06));
+      vec3 lit = col * (vec3(1.5,1.32,1.18) * pow(diff, .85) * rs + vec3(.2,.09,.06) * (1. - hasNight * .7));   // a darker night where there are city lights to show
+      // the sun's glint on open water (the camera looks down -z)
+      lit += vec3(1.,.93,.78) * .5 * pow(max(dot(normalize(vN), normalize(sun + vec3(0.,0.,1.))), 0.), 220.) * texture2D(spec, vUv).r * hasSpec * rs * step(0., sun.z + .35);
       // city lights on the night side
-      lit += texture2D(night, vUv).rgb * vec3(1.,.82,.55) * (1. - smoothstep(0., .12, diff)) * hasNight * 1.3;
+      lit += texture2D(night, vUv).rgb * vec3(1.,.82,.55) * (1. - smoothstep(0., .12, diff)) * hasNight * 2.;
       // highlighted region with a rough edge, like a territory on a map
       float d = acos(clamp(dot(normalize(vObj), hiDir), -1., 1.)) + (luma(vUv) - .45) * .22;
       float m = smoothstep(hiR, hiR - .03, d), edge = smoothstep(.03, .0, abs(d - hiR + .01));
@@ -71,7 +74,7 @@ export function planetMaterial(body) {
       sun: {value: SUN.clone()}, hiDir: {value: new THREE.Vector3(0, 0, 1)}, hi: {value: 0}, hiR: {value: .62},
       tint: {value: v3(s.tint)}, gamma: {value: s.gamma}, relief: {value: s.relief},
       hiCol: {value: v3(s.hiCol)}, rimCol: {value: v3(s.rim)},
-      night: {value: null}, hasNight: {value: 0},
+      night: {value: null}, hasNight: {value: 0}, spec: {value: null}, hasSpec: {value: 0}, bump: {value: null}, hasBump: {value: 0},
       ringMap: {value: null}, ringR: {value: new THREE.Vector2(0, 0)}, ringN: {value: new THREE.Vector3(0, 1, 0)}
     },
     vertexShader: PLANET_VS, fragmentShader: PLANET_FS
@@ -79,11 +82,11 @@ export function planetMaterial(body) {
 }
 
 /* ---------- atmosphere ---------- */
-export function atmosphere(body, readyUniform) {
+export function atmosphere(body, readyUniform, sunUniform = {value: SUN.clone()}) {
   const a = body.shader.atmo;
   if (!a || a.strength <= 0) return null;
   const mat = new THREE.ShaderMaterial({
-    uniforms: {sun: {value: SUN.clone()}, ready: readyUniform, color: {value: v3(a.color)}, strength: {value: a.strength}},
+    uniforms: {sun: sunUniform, ready: readyUniform, color: {value: v3(a.color)}, strength: {value: a.strength}},
     side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
     vertexShader: `varying vec3 vN; void main(){ vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
     fragmentShader: `uniform vec3 sun, color; uniform float ready, strength; varying vec3 vN;
@@ -95,14 +98,14 @@ export function atmosphere(body, readyUniform) {
 }
 
 /* ---------- cloud layer (Earth) ---------- */
-export function cloudLayer(tex, readyUniform) {
+export function cloudLayer(tex, readyUniform, sunUniform = {value: SUN.clone()}) {
   const mat = new THREE.ShaderMaterial({
-    uniforms: {map: {value: tex}, sun: {value: SUN.clone()}, ready: readyUniform},
+    uniforms: {map: {value: tex}, sun: sunUniform, ready: readyUniform},
     transparent: true, depthWrite: false,
     vertexShader: `varying vec2 vUv; varying vec3 vN; void main(){ vUv = uv; vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
     fragmentShader: `uniform sampler2D map; uniform vec3 sun; uniform float ready; varying vec2 vUv; varying vec3 vN;
     void main(){ float c = texture2D(map, vUv).r; float diff = max(dot(normalize(vN), sun), 0.);
-      gl_FragColor = vec4(vec3(.55 + .55 * pow(diff, .8)), c * c * ready * .95); }`
+      gl_FragColor = vec4(vec3(.1 + 1. * pow(diff, .8)), c * c * ready * .95); }`
   });
   const m = new THREE.Mesh(new THREE.SphereGeometry(1.012, 96, 72), mat);
   m.renderOrder = 1;

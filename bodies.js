@@ -57,7 +57,8 @@ export const BODIES = [
   {
     id: 'earth', name: 'Earth', word: 'EARTH', eyebrow: 'Home. Seen from', tagline: 'The only ocean world we know',
     map: 'maps/1k_earth.jpg',
-    clouds: 'maps/1k_earth_clouds.jpg', night: 'maps/1k_earth_night.jpg',
+    clouds: 'maps/1k_earth_clouds.jpg', night: 'maps/1k_earth_night.jpg', spec: 'maps/1k_earth_spec.jpg', bump: 'maps/1k_earth_bump.jpg',
+    liveSun: true,   // lit from where the Sun really is right now
     proc: {bands: false, pal: ['#0b2a5c', '#17519a', '#3f8a4a', '#8c7a4a', '#e8e8e8'], scale: 2.0},
     palette: {deep: '#03091a', bg: ['#2d74b8', '#15406f', '#081d38', '#03091a'], accent: '#4dd0ff',
       flare: ['rgba(235,245,255,.95)', 'rgba(150,200,255,.42)', 'rgba(100,160,255,.1)'], fog: ['#e9f3ff', '#c6dcf4', '#4a79a8'], scrim: '4,14,32'},
@@ -65,15 +66,24 @@ export const BODIES = [
     restPitch: .16,
     region: {name: 'The Himalaya', lat: 30, lon: 85, r: .32},
     // photo: a real photograph of the place, used for the card and the landing.
+    // place: shown above the site name on the landing when the site is outside the highlighted region.
     sites: [
       {name: 'Mount Everest', lat: 27.99, lon: 86.93, note: 'The roof of the world, 8,849 m',
         photo: 'photos/earth-everest.jpg', credit: 'Photo: Vyacheslav Argenberg · CC BY 4.0 · Wikimedia Commons'},
-      {name: 'Sahara', lat: 23, lon: 13, note: 'A desert the size of the United States',
+      {name: 'Sahara', place: 'North Africa', lat: 23, lon: 13, note: 'A desert the size of the United States',
         photo: 'photos/earth-sahara.jpg', credit: 'Photo: Luca Galuzzi · CC BY-SA 2.5 · Wikimedia Commons'},
-      {name: 'Great Barrier Reef', lat: -18.3, lon: 147.7, note: 'The largest living structure on the planet',
+      {name: 'Great Barrier Reef', place: 'Australia', lat: -18.3, lon: 147.7, note: 'The largest living structure on the planet',
         photo: 'photos/earth-reef.jpg', credit: 'Photo: Ank Kumar · CC BY-SA 4.0 · Wikimedia Commons'},
-      {name: 'Grand Canyon', lat: 36.1, lon: -112.1, note: 'Two billion years of rock laid open',
-        photo: 'photos/earth-canyon.jpg', credit: 'Photo: Eric Kilby · CC BY-SA 2.0 · Wikimedia Commons'}
+      {name: 'Grand Canyon', place: 'Arizona', lat: 36.1, lon: -112.1, note: 'Two billion years of rock laid open',
+        photo: 'photos/earth-canyon.jpg', credit: 'Photo: Eric Kilby · CC BY-SA 2.0 · Wikimedia Commons'},
+      {name: 'Amazon Rainforest', place: 'Brazil', lat: -3.3, lon: -60.6, note: 'The largest rainforest on Earth',
+        photo: 'photos/earth-amazon.jpg', credit: 'Photo: lubasi · CC BY-SA 2.0 · Wikimedia Commons'},
+      {name: 'Antarctica', place: 'Victoria Land', lat: -72.2, lon: 169.8, note: 'Mount Herschel above the frozen Ross Sea coast',
+        photo: 'photos/earth-antarctica.jpg', credit: 'Photo: Andrew Mandemaker · CC BY-SA 2.5 · Wikimedia Commons'},
+      {name: 'Vatnajökull', place: 'Iceland', lat: 64.02, lon: -16.37, note: "Iceland’s largest ice cap, calving into a lagoon",
+        photo: 'photos/earth-vatnajokull.jpg', credit: 'Photo: Jakub Hałun · CC BY 4.0 · Wikimedia Commons'},
+      {name: 'Mount Fuji', place: 'Japan', lat: 35.36, lon: 138.73, note: "Japan’s highest peak, 3,776 m",
+        photo: 'photos/earth-fuji.jpg', credit: 'Photo: Σ64 · CC BY 3.0 · Wikimedia Commons'}
     ],
     landing: {type: 'surface'},
     facts: [{label: 'Gravity', value: '1.00 g'}, {label: 'Day length', value: '24 hours'}, {label: 'Surface', value: '15 °C average'}]

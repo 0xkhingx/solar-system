@@ -108,7 +108,7 @@ body.ex .hb,body.ex .uv{display:none!important}
 
 #sites{right:6.2%;top:50%;z-index:7;list-style:none;display:grid;gap:clamp(30px,6.6vh,62px);transform:translateY(-50%)}
 #sites::before{content:"";position:absolute;right:5px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.5)}
-#sites li{position:relative;text-align:right;padding-right:30px;cursor:pointer;font-weight:500;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;transition:font-size .3s}
+#sites li{position:relative;text-align:right;text-shadow:0 1px 8px rgba(0,0,0,.7);padding-right:30px;cursor:pointer;font-weight:500;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;transition:font-size .3s}
 #sites li::after{content:"";position:absolute;right:1px;top:50%;width:9px;height:9px;margin-top:-5px;border-radius:50%;background:#fff;transition:transform .3s,box-shadow .3s}
 #sites li.on{font-size:15px}
 #sites li.on::after{transform:scale(1.5);box-shadow:0 0 0 7px rgba(255,255,255,.28)}
@@ -233,7 +233,7 @@ header a b{font-weight:800;margin-left:6px}
 import * as THREE from 'three';
 import {BODIES, byId, ORBITS, DUST, ABOUT, MOONS, RADIUS_KM} from './bodies.js';
 import {USTAGES, ULOOK, UNIFORMS, universeFS} from './universe.js';
-import {clamp, mix, seg, io, out, dirUV, uvLL, faceYaw, faceLat, XA, YA, SUN,
+import {clamp, mix, seg, io, out, dirUV, dirLL, uvLL, faceYaw, faceLat, XA, YA, SUN,
   planetMaterial, atmosphere, cloudLayer, ringMesh, loadMap, loadOptional, loadRing, placeholderMap, canvasTexture} from './engine.js';
 
 const $ = id => document.getElementById(id);
@@ -305,7 +305,7 @@ const sunW = addWorld(null, new THREE.Mesh(new THREE.SphereGeometry(1, 96, 72), 
   atmosphere({shader: {atmo: {color: [1, .62, .18], strength: 1.8, radius: 1.42}}}, {value: 1}));
 for (const body of BODIES) {
   const mat = planetMaterial(body);
-  const w = addWorld(body, new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat), atmosphere(body, mat.uniforms.ready));
+  const w = addWorld(body, new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat), atmosphere(body, mat.uniforms.ready, mat.uniforms.sun));
   w.mat = mat; w.uni = mat.uniforms;
 }
 const PLANETS = WORLDS.filter(w => w.body);
@@ -378,10 +378,10 @@ Promise.all(PLANETS.flatMap(w => {
       w.uni.map.value = m.texture; w.uni.texel.value.set(1 / m.w, 1 / m.h);
       w.mapUrl = m.url; w.placeholder = m.placeholder;
       if (m.placeholder) placeholders++;
-      if (cur === w) { mapNote = m.placeholder ? `Stand-in map · drop ${b.map} into the folder for the real surface` : ''; pick(sel); }
+      if (cur === w) { mapNote = noteFor(w); pick(sel); }
     }),
-    b.clouds && loadOptional(b.clouds, renderer).then(ct => { if (ct) w.cloudSpin.add(cloudLayer(ct, w.uni.ready)); }),
-    b.night && loadOptional(b.night, renderer).then(nt => { if (nt) { w.uni.night.value = nt; w.uni.hasNight.value = 1; } }),
+    b.clouds && loadOptional(b.clouds, renderer).then(ct => { if (ct) w.cloudSpin.add(cloudLayer(ct, w.uni.ready, w.uni.sun)); }),
+    ...['night', 'spec', 'bump'].map(k => b[k] && loadOptional(b[k], renderer).then(tx => { if (tx) { w.uni[k].value = tx; w.uni['has' + k[0].toUpperCase() + k.slice(1)].value = 1; } })),
     b.rings && loadRing(b, renderer).then(rt => {
       w.rings = ringMesh(b, rt, w.uni.ready); w.tilt.add(w.rings);
       w.uni.ringMap.value = rt; w.uni.ringR.value.set(b.rings.inner, b.rings.outer);
@@ -590,7 +590,7 @@ function applySkin(body) {
   });
   makeDust(body);
   fitWord();
-  mapNote = cur.placeholder ? `Stand-in map · drop ${body.map} into the folder for the real surface` : '';
+  mapNote = noteFor(cur);
   document.title = `${body.name} — Solar System`;
   if (new URLSearchParams(location.search).get('body') !== body.id) history.pushState(null, '', `?body=${body.id}`);
 }
@@ -623,7 +623,7 @@ function pick(i) {
   card.style.top = (r.top + r.height / 2 - card.offsetHeight / 2) + 'px';
   cardNote.textContent = s.note || '';
   destName.textContent = s.name;
-  destRegion.textContent = s.name === body.region.name ? body.name : body.region.name;
+  destRegion.textContent = s.place || (s.name === body.region.name ? body.name : body.region.name);
   destName.style.fontSize = `min(${9.2 * Math.min(1, 12 / s.name.length)}vw, 19vh)`;
   region.textContent = s.name.toUpperCase();
   if (!s.photo && !hasLandImg && !isClouds && cur.mapUrl) {
@@ -633,6 +633,17 @@ function pick(i) {
     land.style.backgroundPosition = `${W / 2 - s.u * sw}px ${H / 2 - s.v * sh}px`;
   }
 }
+
+// Where the Sun is overhead right now (low-precision solar position, good to a fraction of a degree).
+function subsolar(d = new Date()) {
+  const n = (d - J2000) / 864e5, rad = Math.PI / 180;
+  const g = (357.528 + .9856003 * n) * rad, lam = (280.46 + .9856474 * n + 1.915 * Math.sin(g) + .02 * Math.sin(2 * g)) * rad, eps = 23.439 * rad;
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)) / rad, gmst = 280.46061837 + 360.98564736629 * n;
+  return {lat: Math.asin(Math.sin(eps) * Math.sin(lam)) / rad, lon: (((ra - gmst) % 360) + 540) % 360 - 180};
+}
+{ const s = subsolar(new Date(Date.UTC(2025, 5, 21, 12))); console.assert(Math.abs(s.lat - 23.44) < .1 && Math.abs(s.lon) < 1, 'subsolar()', s); }
+const noteFor = w => w.placeholder ? `Stand-in map · drop ${w.body.map} into the folder for the real surface` : w.live ? w.liveNote : '';
+const liveSun = new THREE.Vector3();
 
 /* ---------- moons ---------- */
 const moonCache = {};
@@ -686,6 +697,11 @@ aboutBack.addEventListener('click', unfocus);
 function enter(w) {
   cur = w; mode = 'in'; zt0 = performance.now(); leaving = false; pendingBody = null;
   st = from = to = 0; sel = 0; focusMoon = null;
+  if (w.body.liveSun) {
+    const s = subsolar();
+    w.live = dirLL(s.lat, s.lon); w.yaw = faceYaw(w.live) + .8;      // open on the day side with the night edge in view
+    w.liveNote = `Day and night as they are right now · ${new Date().toISOString().slice(11, 16)} UTC`;
+  }
   setAct('in');
   applySkin(w.body);
   pick(0);
@@ -970,6 +986,10 @@ function render(now) {
       }
     } else { w.yaw += dt * (.12 + w.hover * .3); if (w.body) w.pitch += (w.body.restPitch - w.pitch) * f(2); }
     w.tilt.rotation.x = w.pitch; w.spin.rotation.y = w.yaw; w.cloudSpin.rotation.y = t * .01;
+    if (w.live) {     // real sunlight on the globe view, easing back to studio light for the region and the descent
+      liveSun.copy(w.live).applyAxisAngle(YA, w.yaw).applyAxisAngle(XA, w.pitch);
+      w.uni.sun.value.copy(SUN).lerp(liveSun, w === cur && mode !== 'hub' ? zoomK * (1 - a) : 0).normalize();
+    }
     if (w.uni) {
       w.uni.ready.value = w.loadedAt ? clamp((now - w.loadedAt) / 600) : 0;
       if (w.rings) { w.rings.material.uniforms.center.value.copy(w.group.position); w.rings.material.uniforms.R.value = r; w.uni.ringN.value.set(0, Math.cos(w.pitch), Math.sin(w.pitch)); }
@@ -1045,7 +1065,7 @@ function render(now) {
     if (wide) about.style.transform = `translate(${(1 - iw) * 24}px, calc(-50% + ${focusK * 60}px))`;
 
     flare.style.left = (cx + R * .74) + 'px'; flare.style.top = (cy - R * .62) + 'px';
-    flare.style.opacity = zoomK * (.88 + .12 * Math.sin(t * 1.3)) * (1 - seg(bz, 0, .35));
+    flare.style.opacity = zoomK * (.88 + .12 * Math.sin(t * 1.3)) * (1 - seg(bz, 0, .35)) * (cur.live ? clamp(cur.uni.sun.value.dot(SUN) * 1.4) : 1);
     hint.style.opacity = iw * .8 * (1 - seg(a, 0, .25));
     const pd = regionDir.clone().applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
     pin.style.left = (cx + pd.x * R - 6) + 'px'; pin.style.top = (cy - pd.y * R - 8) + 'px';
