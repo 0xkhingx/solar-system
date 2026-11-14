@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solar System</title>
+<meta name="description" content="From the Big Bang to the solar system. Scrub through the story of everything, then pick a world, spin it, light up a region and drop down to it.">
+<meta property="og:title" content="Solar System">
+<meta property="og:description" content="From the Big Bang to the solar system. Scrub through the story of everything, then pick a world and drop down to it.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30' fill='none' stroke='%23fff'%3E%3Crect x='-2' y='-4' width='38' height='38' fill='%2305070c' stroke='none'/%3E%3Ccircle cx='17' cy='15' r='5' fill='%23fff' stroke='none'/%3E%3Cellipse cx='17' cy='15' rx='15' ry='6' stroke-width='1.6' transform='rotate(-20 17 15)'/%3E%3C/svg%3E">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<style>
+@font-face{font-family:Montserrat;src:url(fonts/montserrat.woff2) format('woff2');font-weight:300 900;font-display:swap}
+:root{--accent:#e8283c;--deep:#2a0d04}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Montserrat,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+.lab:focus-visible,.mlab:focus-visible,#sites li:focus-visible{outline:2px solid #fff;outline-offset:4px}
+#tourBtn{transition:opacity .3s}
+#tourHint{left:50%;bottom:4.4vh;transform:translateX(-50%);z-index:21;font-weight:500;font-size:11px;letter-spacing:.17em;text-transform:uppercase;white-space:nowrap;pointer-events:none;padding:9px 16px;border:1px solid rgba(255,255,255,.3);border-radius:2px;background:rgba(5,7,12,.5);opacity:0;transition:opacity .3s}
+#tourHint.on{opacity:1}
+#app{position:fixed;inset:0;overflow:hidden;background:#05070c}
+#app>*{position:absolute}
+/* which act is on stage */
+body.uni .hb,body.uni .ex{display:none!important}
+body.expand .ex,body.contract .ex{display:none!important}
+body.hub .ex,body.hub .uv{display:none!important}
+body.in .uv{display:none!important}
+body.ex .hb,body.ex .uv{display:none!important}
+
+/* act one: the universe */
+#uni{left:0;right:0;top:63%;z-index:6;display:grid;justify-items:center;padding:0 20px;pointer-events:none}
+.ucap{position:relative;width:100%;height:92px}
+.uline{position:absolute;inset:0;text-align:center;transition:opacity .2s linear,filter .2s linear}
+.uline.off{opacity:0;filter:blur(5px)}
+.uline h1{font-weight:600;font-size:clamp(16px,2.1vh,22px);letter-spacing:-.01em;line-height:1.25}
+.uline p{margin-top:6px;font-size:clamp(12.5px,1.55vh,15px);line-height:1.3;color:rgba(255,255,255,.5)}
+.uline p b{font-weight:600;color:#fff;margin-right:7px}
+.uline small{display:block;margin:9px auto 0;max-width:min(560px,86vw);font-weight:400;font-size:clamp(11.5px,1.35vh,13.5px);line-height:1.45;color:rgba(255,255,255,.62)}
+.uline a{display:inline-block;margin-top:7px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#ffb347;pointer-events:auto}
+#utrack{position:relative;width:min(47vh,84vw);height:64px;margin-top:clamp(12px,2.6vh,26px);pointer-events:auto;cursor:pointer;outline:none}
+#utrack::before{content:"";position:absolute;inset:-8px -30px}
+#uticks{position:absolute;left:0;right:0;top:0;height:44px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
+#uticks i{display:block;width:1.5px;height:44px;background:#fff;transform-origin:50% 100%;will-change:transform}
+.uends{position:absolute;left:0;right:0;top:54px;display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.42);pointer-events:none}
+.uends span.on{color:#fff;font-weight:500}
+#enterSys{margin-top:clamp(10px,2vh,20px);padding:11px 20px;border:1px solid rgba(255,255,255,.35);border-radius:2px;font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;pointer-events:auto;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s,background .25s}
+#enterSys.on{opacity:1;transform:none}
+#enterSys:hover{background:rgba(255,255,255,.12)}
+#utitle{left:0;right:0;top:12vh;z-index:6;text-align:center;pointer-events:none}
+#utitle h1{font-weight:900;font-size:clamp(22px,3.6vw,46px);letter-spacing:-.03em;line-height:1}
+#utitle p{margin-top:8px;font-weight:300;font-size:clamp(11px,1.1vw,14px);letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+
+/* act two: the orbital hub */
+#orbits{inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+#title{left:0;right:0;top:12vh;z-index:6;text-align:center;pointer-events:none}
+#title h1{font-weight:900;font-size:clamp(28px,5vw,64px);letter-spacing:-.03em;line-height:1}
+#title p{margin-top:10px;font-weight:300;font-size:clamp(12px,1.2vw,16px);letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+#date{left:0;right:0;bottom:9.5vh;z-index:6;text-align:center;pointer-events:none}
+#date b{display:block;font-weight:600;font-size:clamp(14px,1.5vw,20px);letter-spacing:.02em}
+#date span{display:block;margin-top:6px;font-size:11px;letter-spacing:.17em;text-transform:uppercase;opacity:.55}
+.lab{position:absolute;left:0;top:0;z-index:6;transform:translate(-50%,0);text-align:center;pointer-events:none;white-space:nowrap}
+.lab b{display:block;font-weight:600;font-size:clamp(9px,.95vw,12px);letter-spacing:.14em;text-transform:uppercase}
+.lab i{display:block;margin-top:5px;font-style:normal;font-weight:300;font-size:clamp(10px,.9vw,12.5px);letter-spacing:.03em;opacity:0;transition:opacity .25s}
+.lab.on i{opacity:.75}
+#scaleCtl{left:0;right:0;bottom:19vh;z-index:6;text-align:center;pointer-events:none}
+#scaleCtl button{pointer-events:auto;margin:0 4px;padding:8px 14px;border:1px solid rgba(255,255,255,.25);border-radius:2px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);transition:color .25s,border-color .25s,background .25s}
+#scaleCtl button.on{color:#fff;border-color:#fff;background:rgba(255,255,255,.1)}
+#scaleCtl p{margin-top:9px;font-size:11px;letter-spacing:.04em;color:rgba(255,255,255,.5)}
+
+/* moons on a world's first step */
+#mlabs{inset:0;z-index:7;pointer-events:none}
+.mlab{position:absolute;left:0;top:0;text-align:center;white-space:nowrap}
+.mlab b{display:block;font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.mlab i{display:block;margin:4px auto 0;max-width:210px;white-space:normal;font-style:normal;font-weight:400;font-size:11px;line-height:1.35;opacity:0;transition:opacity .25s}
+.mlab.on i{opacity:.85}
+
+/* act three: a world */
+#bg{inset:0;z-index:2;pointer-events:none}
+#word0{left:50%;top:50%;font-weight:900;font-size:min(27vw,50vh);line-height:.8;letter-spacing:-.035em;white-space:nowrap;z-index:3;will-change:transform,clip-path}
+#eyebrow{left:50%;top:50%;z-index:3;font-weight:300;font-size:clamp(14px,1.45vw,23px);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+#gl{inset:0;width:100%;height:100%;z-index:4;touch-action:none}
+#gl.grab{cursor:grab}#gl.drag{cursor:grabbing}#gl.hot{cursor:pointer}#gl.ew{cursor:ew-resize}
+#dust{inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+#flare{z-index:2;width:44vmin;height:44vmin;margin:-22vmin;border-radius:50%;pointer-events:none}
+#about{right:6.2%;top:50%;z-index:7;width:clamp(220px,23vw,350px);transform:translateY(-50%);pointer-events:none}
+#about h2{font-weight:900;font-size:clamp(20px,2.3vw,34px);letter-spacing:-.02em;line-height:1;margin-bottom:12px}
+#about h2:empty{display:none}
+#about p{font-weight:400;font-size:clamp(12px,1.05vw,14.5px);line-height:1.55;color:rgba(255,255,255,.86)}
+#about button{display:none;margin-top:16px;padding:8px 0;font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:auto}
+#about button:hover{color:#fff}#about.moon button{display:inline-block}
+#about dl{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.3)}
+#about dt{font-weight:500;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#about dd{margin-top:3px;font-weight:600;font-size:clamp(13px,1.2vw,17px)}
+
+#pin{z-index:6;left:0;top:0;display:flex;align-items:center;gap:9px;font-weight:600;font-size:11px;letter-spacing:.16em;text-transform:uppercase;pointer-events:none;white-space:nowrap}
+#pin i{width:12px;height:12px;border-radius:50%;background:#fff;position:relative;box-shadow:0 0 0 4px var(--accent)}
+#pin i::after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid #fff;animation:pulse 2s ease-out infinite}
+@keyframes pulse{from{transform:scale(.4);opacity:1}to{transform:scale(1.4);opacity:0}}
+#word1{left:50%;top:0;z-index:6;font-weight:800;font-size:min(9.4vw,19vh);letter-spacing:-.02em;line-height:1;color:rgba(255,255,255,.74);pointer-events:none;white-space:nowrap}
+
+#sites{right:6.2%;top:50%;z-index:7;list-style:none;display:grid;gap:clamp(30px,6.6vh,62px);transform:translateY(-50%)}
+#sites::before{content:"";position:absolute;right:5px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.5)}
+#sites li{position:relative;text-align:right;padding-right:30px;cursor:pointer;font-weight:500;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;transition:font-size .3s}
+#sites li::after{content:"";position:absolute;right:1px;top:50%;width:9px;height:9px;margin-top:-5px;border-radius:50%;background:#fff;transition:transform .3s,box-shadow .3s}
+#sites li.on{font-size:15px}
+#sites li.on::after{transform:scale(1.5);box-shadow:0 0 0 7px rgba(255,255,255,.28)}
+#card{right:calc(6.2% + 196px);top:0;z-index:7;width:clamp(170px,15.5vw,250px);aspect-ratio:1.42;background-repeat:no-repeat;border-radius:3px;box-shadow:0 22px 44px rgba(0,0,0,.45);overflow:visible;background-color:rgba(0,0,0,.25)}
+#card a{position:absolute;left:-26px;bottom:18%;background:var(--accent);font-weight:600;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;padding:9px 15px;border-radius:2px;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+#card p{position:absolute;left:0;right:0;top:calc(100% + 10px);font-weight:400;font-size:11px;line-height:1.4;letter-spacing:.02em;color:rgba(255,255,255,.8)}
+#region{left:50%;top:50%;z-index:7;transform:translate(-50%,-50%);font-weight:500;font-size:clamp(26px,3.4vw,54px);letter-spacing:.04em;pointer-events:none;white-space:nowrap}
+
+#land,#fore{inset:0;background-size:cover;background-repeat:no-repeat}
+#land{z-index:8;background-position:50% 60%;will-change:transform}
+#dest{left:0;right:0;top:0;z-index:9;text-align:center;pointer-events:none}
+#dest small{display:block;font-weight:300;font-size:min(5.2vw,11vh);line-height:1;letter-spacing:.04em;text-transform:uppercase;opacity:.92}
+#dest b{display:block;margin-top:.04em;font-weight:900;font-size:min(9.2vw,19vh);line-height:1;letter-spacing:-.03em;text-transform:uppercase;white-space:nowrap;color:#fff}
+#fore{z-index:10;background-position:50% 100%;will-change:transform}
+#fog{inset:0;z-index:11;pointer-events:none}
+#scrim{left:0;right:0;top:0;height:150px;z-index:13;pointer-events:none}
+#bar{left:50%;bottom:7.5vh;z-index:12;width:min(86vw,920px);display:grid;grid-template-columns:1fr 1fr 1fr 150px;background:#fff;color:#1c1a18;border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+#bar div{padding:15px 22px;border-right:1px solid #e6e1dc}
+#bar label{display:block;font-weight:500;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8e8680}
+#bar span{display:block;margin-top:5px;font-weight:600;font-size:15px;white-space:nowrap}
+#bar button{background:var(--accent);color:#fff;border-radius:0 3px 3px 0;font-weight:600;font-size:11px;letter-spacing:.09em;text-transform:uppercase;transition:filter .25s}
+#bar button:hover{filter:brightness(.88)}
+
+/* chrome */
+header{left:0;right:0;top:0;z-index:20;display:flex;align-items:center;padding:clamp(18px,3.2vh,30px) clamp(20px,2.6vw,42px);font-size:11.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
+header>*{pointer-events:auto}
+.logo{display:flex;align-items:center;gap:12px;margin-right:auto;font-weight:800;font-size:19px;letter-spacing:-.01em;text-transform:none}
+.logo svg{width:34px;height:30px}
+header a{margin-left:clamp(16px,2.6vw,38px);opacity:.92;transition:opacity .2s}
+header a:hover{opacity:1}
+header a b{font-weight:800;margin-left:6px}
+#rail{left:clamp(20px,2.6vw,42px);top:50%;z-index:20;display:grid;gap:15px;transform:translateY(-50%)}
+#rail button{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.45);transition:background .3s,transform .3s}
+#rail button.on{background:#fff;transform:scale(1.35)}
+#hint{left:50%;bottom:4.4vh;transform:translateX(-50%);z-index:7;font-weight:400;font-size:11px;letter-spacing:.17em;text-transform:uppercase;opacity:.8;white-space:nowrap;pointer-events:none}
+#note{left:50%;bottom:1.6vh;transform:translateX(-50%);z-index:14;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);white-space:nowrap;pointer-events:none}
+#loading{left:50%;bottom:1.6vh;transform:translateX(-50%);z-index:30;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;pointer-events:none;transition:opacity .5s}
+
+@media (max-width:760px){
+  header{font-size:10px;letter-spacing:.03em}.logo{font-size:0}header a[href="sun-timeline.html"]{display:none}
+  #title{top:9vh}#date{bottom:5vh}#utitle{top:8vh}#scaleCtl{bottom:15vh}#scaleCtl p{display:none}#mlabs{display:none}
+  #uni{top:58%}.uline small{display:none}
+  #word0{font-size:29vw}
+  #eyebrow{font-size:12px}
+  #word1{font-size:15vw}
+  #about{left:16px;right:16px;top:auto;bottom:4vh;width:calc(100vw - 32px);transform:none!important}
+  #about h2{font-size:20px;margin-bottom:8px}#about p{font-size:12px;line-height:1.45}
+  #about dl{grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:10px}#about dd{font-size:13px}
+  #rail{display:grid;left:14px}
+  #sites{right:18px;top:auto;bottom:11vh;transform:none;gap:22px}
+  #card{right:auto;left:18px;top:auto!important;bottom:11vh;width:42vw}
+  #card a{left:8px;bottom:8px}#card p{display:none}
+  #dest b{font-size:11vw}#dest small{font-size:7vw}
+  #bar{grid-template-columns:1fr 1fr;width:calc(100vw - 32px);bottom:7vh}
+  #bar div:nth-child(2){border-right:0}
+  #bar div{padding:11px 14px;border-bottom:1px solid #e6e1dc}
+  #bar button{height:46px;border-radius:0 0 3px 0}
+  #hint{display:none}
+  #note{white-space:normal;width:calc(100vw - 32px);text-align:center;font-size:9px}
+  #fore{background-size:210% auto}
+}
+</style>
+</head>
+<body class="uni">
+<noscript><p style="padding:40px;text-align:center">This page needs JavaScript and WebGL.</p></noscript>
+<main id="app">
+<canvas id="orbits" class="hb"></canvas>
+<div id="bg" class="ex"></div>
+<div id="word0" class="ex"></div>
+<div id="eyebrow" class="ex"></div>
+<div id="flare" class="ex"></div>
+<canvas id="gl"></canvas>
+<canvas id="dust" class="ex"></canvas>
+<aside id="about" class="ex"><h2 id="aboutTitle"></h2><p id="aboutText"></p><dl id="aboutStats"></dl><button id="aboutBack"></button></aside>
+<div id="pin" class="ex"><i></i><span id="pinName"></span></div>
+<div id="word1" class="ex"></div>
+<ul id="sites" class="ex"></ul>
+<div id="card" class="ex"><a href="#" id="explore">Go there</a><p id="cardNote"></p></div>
+<div id="region" class="ex"></div>
+<div id="land" class="ex"></div>
+<div id="dest" class="ex"><small id="destRegion"></small><b id="destName"></b></div>
+<div id="fore" class="ex"></div>
+<div id="fog" class="ex"></div>
+<div id="scrim" class="ex"></div>
+<div id="bar" class="ex">
+  <div><label id="f0l"></label><span id="f0v"></span></div>
+  <div><label id="f1l"></label><span id="f1v"></span></div>
+  <div><label id="f2l"></label><span id="f2v"></span></div>
+  <button id="next">Next site →</button>
+</div>
+<div id="utitle" class="uv"><h1>The story of everything</h1><p>13.8 billion years in nine chapters</p></div>
+<div id="uni" class="uv">
+  <div class="ucap" id="ucap"></div>
+  <div id="utrack" role="slider" tabindex="0" aria-label="Time" aria-valuemin="0" aria-valuemax="8">
+    <div id="uticks"></div>
+    <div class="uends"><span id="ue0">Big Bang</span><span id="ue1">Today</span></div>
+  </div>
+  <button id="enterSys">Enter the solar system →</button>
+</div>
+<div id="title" class="hb"><h1>The Solar System</h1><p>One star, eight worlds. Pick one.</p></div>
+<div id="date" class="hb"><b id="dateText"></b><span>Drag or scroll to move through time</span></div>
+<div id="scaleCtl" class="hb"><button data-m="pretty" class="on">Not to scale</button><button data-m="distances">True distances</button><button data-m="sizes">True sizes</button><p id="scaleNote"></p></div>
+<div id="labels" class="hb"></div>
+<div id="mlabs" class="ex"></div>
+<div id="note"></div>
+<div id="loading">Loading worlds</div>
+<header>
+  <a class="logo" href="#" id="home" style="margin-left:0;opacity:1"><svg viewBox="0 0 34 30" fill="none" stroke="#fff" stroke-linecap="round"><circle cx="17" cy="15" r="5" fill="#fff" stroke="none"/><ellipse cx="17" cy="15" rx="15" ry="6" stroke-width="1.6" transform="rotate(-20 17 15)"/></svg>Solar System</a>
+  <a href="#" id="prev" class="ex"></a><a href="#" id="nextBody" class="ex"></a>
+  <a href="#" id="toUni" class="hb">← The Universe</a>
+  <a href="#" id="skipUni" class="uv">Skip to the solar system →</a>
+  <a href="#" id="tourBtn">Take the tour</a>
+  <a href="sun-timeline.html">Life of the Sun</a>
+</header>
+<div id="tourHint">Tour · tap or press any key to stop</div>
+<div id="rail" class="ex"><button aria-label="Planet"></button><button aria-label="Region"></button><button aria-label="Site"></button></div>
+<div id="hint" class="ex">Drag to spin · click the planet to explore</div>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import {BODIES, byId, ORBITS, DUST, ABOUT, MOONS, RADIUS_KM} from './bodies.js';
+import {USTAGES, ULOOK, UNIFORMS, universeFS} from './universe.js';
+import {clamp, mix, seg, io, out, dirUV, uvLL, faceYaw, faceLat, XA, YA, SUN,
+  planetMaterial, atmosphere, cloudLayer, ringMesh, loadMap, loadOptional, loadRing, placeholderMap, canvasTexture} from './engine.js';
+
+const $ = id => document.getElementById(id);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const qs = new URLSearchParams(location.search);
+const DEBUG = qs.has('debug');
+let W = innerWidth, H = innerHeight;
+const bg = $('bg'), word0 = $('word0'), eyebrow = $('eyebrow'), flare = $('flare'), glCanvas = $('gl'), dust = $('dust'), orbits = $('orbits'),
+  pin = $('pin'), word1 = $('word1'), sites = $('sites'), card = $('card'), cardNote = $('cardNote'), region = $('region'),
+  land = $('land'), dest = $('dest'), destRegion = $('destRegion'), destName = $('destName'),
+  fore = $('fore'), fog = $('fog'), scrim = $('scrim'), bar = $('bar'), hint = $('hint'), note = $('note'),
+  labels = $('labels'), title = $('title'), dateEl = $('date'), dateText = $('dateText'), rail = [...$('rail').children],
+  uniEl = $('uni'), utitle = $('utitle'), ucap = $('ucap'), utrack = $('utrack'), uticksEl = $('uticks'), ue0 = $('ue0'), ue1 = $('ue1'), enterSys = $('enterSys'),
+  about = $('about'), aboutTitle = $('aboutTitle'), aboutText = $('aboutText'), aboutStats = $('aboutStats'), aboutBack = $('aboutBack'),
+  scaleCtl = $('scaleCtl'), scaleNote = $('scaleNote'), mlabs = $('mlabs'), tourBtn = $('tourBtn'), tourHint = $('tourHint');
+const touchUI = matchMedia('(hover: none)').matches;
+if (touchUI) hint.textContent = 'Drag to spin · tap the planet to explore · swipe up for the next step';
+
+/* ======================================================================
+   Scene: one renderer, one orthographic camera in CSS pixels, nine worlds
+   ====================================================================== */
+let renderer;
+try { renderer = new THREE.WebGLRenderer({canvas: glCanvas, alpha: true, antialias: true}); }
+catch (e) { $('app').innerHTML = '<p style="inset:0;display:grid;place-items:center;padding:40px;text-align:center">This page needs WebGL, which is switched off or unsupported in this browser.</p>'; throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const cam = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, -2e5, 2e5);
+scene.add(cam);
+
+const sunMat = new THREE.ShaderMaterial({
+  uniforms: {t: {value: 0}},
+  vertexShader: `varying vec3 vObj; varying vec3 vN; void main(){ vObj = normalize(position); vN = normalize(mat3(modelMatrix)*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `precision highp float; uniform float t; varying vec3 vObj; varying vec3 vN;
+    float h(vec3 p){ p = fract(p*.3183099 + .1); p *= 17.; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+    float n3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f*f*(3.-2.*f);
+      return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x), mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x), f.y),
+                 mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x), mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x), f.y), f.z); }
+    float fbm(vec3 p){ float a=.5, s=0.; for(int i=0;i<5;i++){ s+=a*n3(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=.5; } return s; }
+    void main(){
+      vec3 q = normalize(vObj);
+      float w1 = fbm(q*3.4 + vec3(0.,0.,t*.28)), w2 = fbm(q*3.1 + 7. - vec3(t*.22,0.,0.));
+      float v = fbm(q*5.8 + 2.4*vec3(w1, w2, w1-w2));
+      float s = smoothstep(.24,.76,v);
+      vec3 c = mix(vec3(1.,.26,.01), vec3(2.3,1.,.12), smoothstep(.0,.55,s));
+      c = mix(c, vec3(3.6,2.9,1.3), smoothstep(.5,1.,s));
+      float mu = max(vN.z, 0.);
+      c *= mix(.34, 1., pow(mu,.5));
+      c += vec3(1.8,.68,.1)*pow(1.-mu,2.6)*.42;
+      c = 1. - exp(-c*1.15);
+      gl_FragColor = vec4(pow(c, vec3(.4545)), 1.); }`
+});
+
+const WORLDS = [];
+function addWorld(body, mesh, atmo) {
+  const group = new THREE.Group(), tilt = new THREE.Group(), spin = new THREE.Group(), cloudSpin = new THREE.Group();
+  group.add(tilt); tilt.add(spin); spin.add(mesh); spin.add(cloudSpin); scene.add(group);
+  if (atmo) group.add(atmo);
+  const lab = document.createElement('div');
+  lab.className = 'lab'; lab.innerHTML = `<b>${body ? body.name : 'The Sun'}</b><i>${body ? body.tagline : 'Scrub through its ten-billion-year life'}</i>`;
+  labels.appendChild(lab);
+  lab.tabIndex = 0; lab.setAttribute('role', 'button');
+  lab.addEventListener('keydown', e => { if (e.key === 'Enter' && mode === 'hub') { if (body) enter(w); else location.href = 'sun-timeline.html'; } });
+  const w = {body, group, tilt, spin, cloudSpin, lab, mesh, x: 0, y: 0, r: 1, hover: 0, pitch: body ? body.restPitch : 0,
+    yaw: Math.random() * 6.28, vy: 0, hubR: 1, loadedAt: 0, mapUrl: null, placeholder: false};
+  WORLDS.push(w); return w;
+}
+const sunW = addWorld(null, new THREE.Mesh(new THREE.SphereGeometry(1, 96, 72), sunMat),
+  atmosphere({shader: {atmo: {color: [1, .62, .18], strength: 1.8, radius: 1.42}}}, {value: 1}));
+for (const body of BODIES) {
+  const mat = planetMaterial(body);
+  const w = addWorld(body, new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), mat), atmosphere(body, mat.uniforms.ready));
+  w.mat = mat; w.uni = mat.uniforms;
+}
+const PLANETS = WORLDS.filter(w => w.body);
+
+// act one, drawn on a full-screen quad behind the worlds
+const uniMat = new THREE.ShaderMaterial({
+  uniforms: Object.assign({res: {value: new THREE.Vector2(1, 1)}, fade: {value: 0}, t: {value: 0}, evo: {value: 0}, blur: {value: 0}, rush: {value: 0}, flick: {value: 1},
+    c0: {value: new THREE.Vector3()}, c1: {value: new THREE.Vector3()}, c2: {value: new THREE.Vector3()}},
+    Object.fromEntries(UNIFORMS.map(n => [n, {value: 0}]))),
+  transparent: true, depthWrite: false,
+  vertexShader: `void main(){ gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: universeFS(true)
+});
+const uniQuad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), uniMat);
+uniQuad.position.z = -60000; uniQuad.renderOrder = -1; scene.add(uniQuad);
+
+// cloud-deck descent for the gas giants: a full-screen quad in front of everything
+const cloudMat = new THREE.ShaderMaterial({
+  uniforms: {t: {value: 0}, k: {value: 0}, res: {value: new THREE.Vector2(W, H)}, mouse: {value: new THREE.Vector2()},
+    ca: {value: new THREE.Color()}, cb: {value: new THREE.Color()}, cc: {value: new THREE.Color()}},
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `precision highp float; uniform float t, k; uniform vec2 res, mouse; uniform vec3 ca, cb, cc; varying vec2 vUv;
+    float h(vec3 p){ p = fract(p*.3183099 + .1); p *= 17.; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+    float n3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f*f*(3.-2.*f);
+      return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x), mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x), f.y),
+                 mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x), mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x), f.y), f.z); }
+    float fbm(vec3 p){ float a=.5, s=0.; for(int i=0;i<5;i++){ s+=a*n3(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=.5; } return s; }
+    void main(){
+      float ar = res.x/res.y; vec2 p = vec2((vUv.x-.5)*ar, vUv.y-.5);
+      vec2 sunDir = normalize(vec2(.6, .8));
+      vec3 col = mix(ca*.8, cb, .3 + .5*vUv.y);
+      float dark = 0.;
+      for(int i=0;i<4;i++){
+        float fi = float(i), par = .05 + fi*.06, sc = 1.1 + fi*.9;
+        vec2 q = p*sc + vec2(mouse.x*par*3. + t*.014*(1.+fi), mouse.y*par*3. - (1.-k)*.75*(1.+fi*.6));
+        vec3 s = vec3(q*vec2(1., 2.6), t*.05 + fi*5.);
+        float n = fbm(s);
+        float nl = fbm(s + vec3(sunDir*.06, 0.));
+        float band = .5 + .5*sin(q.y*7. + n*5.);
+        float d = smoothstep(.36, .8, n*.75 + band*.25);
+        float lit = .55 + .7*clamp((nl - n)*9. + .5, 0., 1.);
+        float cell = floor(t*7.) + fi*13.;
+        float flash = step(.985, h(vec3(cell, 1., 7.))) * (fi == 2. ? 1. : 0.) * (.6 + .4*h(vec3(cell, 2., 3.)));
+        vec2 fc = vec2(h(vec3(cell, 4., 1.))-.5, h(vec3(cell, 5., 2.))-.5) * vec2(ar, 1.);
+        float fl = flash * exp(-dot(p-fc, p-fc) * 6.);
+        vec3 c = mix(cb, cc, pow(n, 1.3)) * lit + cc * fl * 2.5;
+        col = mix(col, c, d*(.42 + .2*fi));
+        dark += (1.-d) * .08 * fi;
+      }
+      col += cc * .25 * smoothstep(.3, 1., vUv.y) * (.6 + .4*dot(normalize(p + vec2(0., .01)), sunDir));
+      col = mix(col, ca*.75, smoothstep(.4, 0., vUv.y) * .6);
+      col *= 1. - dark * .3;
+      gl_FragColor = vec4(col, 1.);
+    }`
+});
+const cloudQuad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), cloudMat);
+cloudQuad.position.z = 50000; cloudQuad.visible = false; scene.add(cloudQuad);
+
+/* ---------- assets ---------- */
+let placeholders = 0;
+for (const w of PLANETS) {
+  w.uni.map.value = canvasTexture(renderer, placeholderMap(w.body, 128)); w.uni.texel.value.set(1 / 128, 1 / 64);
+  w.loadedAt = performance.now();
+}
+const stdNote = () => placeholders ? `${placeholders} of 8 maps are stand-ins` : 'Planet maps: James Hastings-Trew';
+Promise.all(PLANETS.flatMap(w => {
+  const b = w.body;
+  return [
+    loadMap(b, renderer, 1024).then(m => {
+      w.uni.map.value = m.texture; w.uni.texel.value.set(1 / m.w, 1 / m.h);
+      w.mapUrl = m.url; w.placeholder = m.placeholder;
+      if (m.placeholder) placeholders++;
+      if (cur === w) { mapNote = m.placeholder ? `Stand-in map · drop ${b.map} into the folder for the real surface` : ''; pick(sel); }
+    }),
+    b.clouds && loadOptional(b.clouds, renderer).then(ct => { if (ct) w.cloudSpin.add(cloudLayer(ct, w.uni.ready)); }),
+    b.night && loadOptional(b.night, renderer).then(nt => { if (nt) { w.uni.night.value = nt; w.uni.hasNight.value = 1; } }),
+    b.rings && loadRing(b, renderer).then(rt => {
+      w.rings = ringMesh(b, rt, w.uni.ready); w.tilt.add(w.rings);
+      w.uni.ringMap.value = rt; w.uni.ringR.value.set(b.rings.inner, b.rings.outer);
+    })
+  ].filter(Boolean);
+})).then(() => {
+  $('loading').style.opacity = 0;
+  if (mode === 'hub') note.textContent = stdNote();
+});
+
+/* ======================================================================
+   Acts: universe →(expand)→ hub →(in)→ ex →(out)→ hub →(contract)→ universe
+   ====================================================================== */
+let mode = 'universe', zoomK = 0, zt0 = 0, cur = null, pendingBody = null, leaving = false, enteredAt = 0;
+let hubScale = 0, et0 = 0;                 // how far the solar system has grown out of the universe
+const ZOOM_IN = 1300, ZOOM_OUT = 900, EXPAND = 1700, CONTRACT = 1100;
+const setAct = c => { document.body.className = c; };
+
+/* ---------- act one: the universe ---------- */
+const UST = USTAGES.slice(0, 9), ULK = ULOOK.slice(0, 9), ULAST = UST.length - 1, UPER = 4, UN = ULAST * UPER + 1;
+let ux = 0, ustage = 0, uomega = 6, uevo = 0, uhover = -1, lastUInput = -1e9, unextAuto = 0, todayAt = 0, uLine = null, ucapStage = -1, armed = true;
+const ucur = JSON.parse(JSON.stringify(ULK[0]));
+const uticks = [], utickH = [];
+for (let j = 0; j < UN; j++) { const i = document.createElement('i'); uticksEl.appendChild(i); uticks.push(i); utickH.push(.2); }
+function umoveTo(nx, now) {
+  nx = clamp(nx, 0, 1);
+  uomega += (nx - ux) * 150;
+  ux = nx; lastUInput = now;
+}
+const upx = e => { const r = utrack.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
+function setUCaption(i) {
+  ucapStage = i;
+  const s = UST[i];
+  const l = document.createElement('div');
+  l.className = 'uline off';
+  l.innerHTML = `<h1>${s.t}</h1><p><b>${s.b}</b>${s.c}</p><small>${s.d}</small>` + (s.link ? `<a href="${s.link}">${s.label} →</a>` : '');
+  ucap.appendChild(l);
+  void l.offsetHeight;
+  l.classList.remove('off');
+  const prev = uLine; uLine = l;
+  if (prev) { prev.classList.add('off'); setTimeout(() => prev.remove(), 240); }
+  utrack.setAttribute('aria-valuenow', i);
+  utrack.setAttribute('aria-valuetext', `${s.b}, ${s.t}`);
+  ue0.classList.toggle('on', i === 0);
+  ue1.classList.toggle('on', i === ULAST);
+  enterSys.classList.toggle('on', i === ULAST);
+}
+utrack.addEventListener('pointermove', e => {
+  if (mode !== 'universe') return;
+  uhover = clamp(upx(e));
+  if (e.pointerType === 'mouse' && !dragging) umoveTo(uhover, performance.now());
+});
+utrack.addEventListener('pointerleave', () => { uhover = -1; });
+utrack.addEventListener('pointerdown', e => { if (mode === 'universe') { dragging = true; lx = e.clientX; umoveTo(upx(e), performance.now()); utrack.setPointerCapture(e.pointerId); } });
+utrack.addEventListener('pointermove', e => { if (mode === 'universe' && dragging) umoveTo(upx(e), performance.now()); });
+utrack.addEventListener('pointerup', () => { dragging = false; });
+enterSys.addEventListener('click', () => expand());
+$('skipUni').addEventListener('click', e => { e.preventDefault(); if (mode === 'universe') { ux = 1; expand(); } });
+$('toUni').addEventListener('click', e => { e.preventDefault(); if (mode === 'hub') contract(); });
+
+function expand() {
+  if (mode !== 'universe') return;
+  mode = 'expand'; et0 = performance.now(); setAct('expand'); todayAt = 0;
+}
+function contract() {
+  if (mode !== 'hub') return;
+  mode = 'contract'; et0 = performance.now(); setAct('contract'); setScale('pretty');
+  ux = 1; ustage = ULAST; uomega = -4; lastUInput = performance.now(); todayAt = 0;
+  armed = false;                                   // no auto-expand until the visitor scrubs again
+  if (ucapStage !== ULAST) setUCaption(ULAST);
+}
+
+/* ---------- act two: the orbital hub ---------- */
+const J2000 = Date.UTC(2000, 0, 1, 12);
+let tDays = (Date.now() - J2000) / 864e5, timeVel = 0;
+let sunX = 0, sunY = 0, orbitR = [], baseR = 10, rMaxD = 100;
+// three ways to draw the system: the readable default, real distances (everything a dot), real sizes (a row, the Sun off the left edge)
+let scaleMode = 'pretty', orbAlpha = 1;
+const SCALE_NOTE = {
+  pretty: 'Sizes and distances are not to scale',
+  distances: 'Real distances. At this scale the Sun is smaller than a pixel, so every world is drawn as a dot',
+  sizes: 'Real sizes, side by side. The Sun at the left is 109 Earths across'
+};
+function setScale(m) {
+  if (!SCALE_NOTE[m]) return;
+  scaleMode = m;
+  [...scaleCtl.querySelectorAll('button')].forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  scaleNote.textContent = SCALE_NOTE[m];
+}
+scaleCtl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && mode === 'hub') setScale(b.dataset.m); });
+setScale('pretty');
+function hubLayout() {
+  const portrait = H > W * 1.05;
+  sunX = W * .5; sunY = portrait ? H * .5 : H * .56;
+  baseR = clamp(Math.min(W, H) * .017, 6, 15);
+  const rMin = baseR * 7, rMax = (portrait ? Math.min(W * .46, H * .36) : Math.min(W * .47, H * .4)) - baseR * 2;
+  rMaxD = rMax;
+  orbitR = PLANETS.map((w, i) => rMin + (rMax - rMin) * Math.pow(i / 7, .78));
+}
+// where every world wants to be this frame: {x, y, r, orb}. Actual positions ease toward these.
+function hubTargets() {
+  if (scaleMode === 'sizes') {
+    const k = Math.min(H * .17, W * .045) / RADIUS_KM.jupiter;
+    const gap = Math.max(W * .022, 18), sliver = Math.min(W * .09, 120);
+    let total = 0; for (const w of PLANETS) total += 2 * RADIUS_KM[w.body.id] * k + gap;
+    let x = sliver + Math.max(gap, (W - sliver - total) / 2);
+    sunW.tg = {x: sliver - RADIUS_KM.sun * k, y: sunY, r: RADIUS_KM.sun * k, orb: 0};
+    for (const w of PLANETS) { const r = RADIUS_KM[w.body.id] * k; w.tg = {x: x + r, y: sunY, r, orb: 0}; x += 2 * r + gap; }
+    return;
+  }
+  const dist = scaleMode === 'distances';
+  sunW.tg = {x: sunX, y: sunY, r: dist ? 2.5 : baseR * 3.2, orb: 0};
+  PLANETS.forEach((w, i) => {
+    const o = ORBITS[w.body.id], L = (o.L0 + o.n * tDays) * Math.PI / 180;
+    const orb = (dist ? rMaxD * o.au / 30.07 : orbitR[i]) * hubScale;
+    w.tg = {x: sunX + orb * Math.cos(L), y: sunY - orb * Math.sin(L), r: dist ? 1.7 : baseR * o.size, orb};
+  });
+}
+const octx = orbits.getContext('2d');
+function drawOrbits(hotW) {
+  octx.setTransform(1, 0, 0, 1, 0, 0);
+  octx.clearRect(0, 0, orbits.width, orbits.height);
+  octx.setTransform(dprO, 0, 0, dprO, 0, 0);
+  octx.globalAlpha = seg(hubScale, .25, 1) * orbAlpha;
+  const gr = Math.max(sunW.hubR * 4.4, 40);
+  const g = octx.createRadialGradient(sunW.x, sunW.y, 0, sunW.x, sunW.y, gr);
+  g.addColorStop(0, 'rgba(255,170,60,.22)'); g.addColorStop(.35, 'rgba(255,140,40,.06)'); g.addColorStop(1, 'rgba(255,120,30,0)');
+  octx.fillStyle = g; octx.fillRect(0, 0, W, H);
+  for (const w of PLANETS) {
+    if (!(w.orbR > 1)) continue;
+    octx.beginPath(); octx.arc(sunX, sunY, w.orbR, 0, 6.2832);
+    octx.strokeStyle = hotW === w ? 'rgba(255,255,255,.5)' : 'rgba(255,255,255,.13)';
+    octx.lineWidth = 1; octx.stroke();
+  }
+  octx.globalAlpha = 1;
+}
+function fmtDate(d) {
+  const y = d.getUTCFullYear();
+  const s = d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', timeZone: 'UTC'});
+  return y < 1 ? `${s} ${1 - y} BC` : `${s} ${y}`;
+}
+
+/* ---------- act three: a world ---------- */
+let st = 0, from = 0, to = 0, t0 = 0, dur = 1, sel = 0, SITES = [], REGION = null, regionDir = null, siteCredit = '', mapNote = '';
+let isClouds = false, hasLandImg = false, dustMotes = [], dustColor = [255, 240, 220], dustStreak = 1;
+const dctx = dust.getContext('2d');
+const sprite = document.createElement('canvas'); sprite.width = sprite.height = 64;
+function makeSprite(c) {
+  const s = sprite.getContext('2d'); s.clearRect(0, 0, 64, 64);
+  const g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, `rgba(${c},.95)`); g.addColorStop(.4, `rgba(${c},.42)`); g.addColorStop(1, `rgba(${c},0)`);
+  s.fillStyle = g; s.fillRect(0, 0, 64, 64);
+}
+function makeDust(body) {
+  const d = DUST[body.id] || {count: 34};
+  dustColor = d.color || [255, 240, 220]; dustStreak = d.streak || 1; makeSprite(dustColor.join(','));
+  let seed = 1234567;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  dustMotes = Array.from({length: d.count}, () => { const x = rnd(), y = rnd(), r = rnd(); return {x, y, r: 3 + r * r * 34, s: .004 + rnd() * .012, p: rnd() * 6.28}; });
+}
+function go(n) {
+  n = clamp(n, 0, 2);
+  if (n === to) return;
+  if (n > 0) unfocus();
+  from = st; to = n; t0 = performance.now();
+  const lo = Math.min(from, to), hi = Math.max(from, to);
+  const d = (clamp(hi, 0, 1) - clamp(lo, 0, 1)) * 1300 + (clamp(hi, 1, 2) - clamp(lo, 1, 2)) * 2500;
+  dur = reduced ? 1 : Math.max(d, 1);
+}
+function replay() { st = from = 1.45; to = 2; t0 = performance.now(); dur = reduced ? 1 : (2 - 1.45) * 2500; }
+
+function applySkin(body) {
+  const P = body.palette;
+  document.documentElement.style.setProperty('--accent', P.accent);
+  document.documentElement.style.setProperty('--deep', P.deep);
+  bg.style.background = `radial-gradient(58% 72% at 50% 47%,${P.bg[0]} 0%,${P.bg[1]} 32%,${P.bg[2]} 62%,${P.bg[3]} 100%)`;
+  flare.style.background = `radial-gradient(closest-side,${P.flare[0]},${P.flare[1]} 26%,${P.flare[2]} 58%,transparent)`;
+  fog.style.background = `radial-gradient(70% 64% at 50% 46%,${P.fog[0]} 0%,${P.fog[1]} 52%,${P.fog[2]} 100%)`;
+  scrim.style.background = `linear-gradient(rgba(${P.scrim},.62),rgba(${P.scrim},0))`;
+  word0.textContent = body.word; eyebrow.textContent = body.eyebrow;
+  $('pinName').textContent = body.region.name; word1.textContent = body.region.name.toUpperCase();
+  const bi = BODIES.indexOf(body), prevB = BODIES[(bi + 7) % 8], nextB = BODIES[(bi + 1) % 8];
+  $('prev').innerHTML = `← <b>${prevB.name}</b>`; $('prev').dataset.id = prevB.id;
+  $('nextBody').innerHTML = `<b>${nextB.name}</b> →`; $('nextBody').dataset.id = nextB.id;
+  body.facts.forEach((f, i) => { $(`f${i}l`).textContent = f.label; $(`f${i}v`).textContent = f.value; });
+  panelPlanet(body);
+  isClouds = body.landing.type === 'clouds'; hasLandImg = !!body.landing.land;
+  land.style.backgroundImage = hasLandImg ? `url("${body.landing.land}")` : '';
+  fore.style.backgroundImage = hasLandImg ? `url("${body.landing.fore}")` : '';
+  land.style.backgroundSize = hasLandImg ? 'cover' : ''; land.style.backgroundPosition = hasLandImg ? '50% 60%' : '';
+  card.style.backgroundImage = body.cards ? `url("${body.cards.sheet}")` : '';
+  if (isClouds) { const [a, b, c] = body.landing.clouds; cloudMat.uniforms.ca.value.set(a); cloudMat.uniforms.cb.value.set(b); cloudMat.uniforms.cc.value.set(c); }
+  SITES = body.sites.map(s => ({...s, ...uvLL(s.lat, s.lon)}));
+  REGION = {...body.region, ...uvLL(body.region.lat, body.region.lon)};
+  regionDir = dirUV(REGION.u, REGION.v);
+  sites.innerHTML = '';
+  SITES.forEach((s, i) => {
+    const li = document.createElement('li');
+    li.textContent = s.name;
+    li.addEventListener('pointerenter', () => pick(i));
+    li.addEventListener('click', () => { pick(i); go(2); });
+    li.tabIndex = 0; li.setAttribute('role', 'button');
+    li.addEventListener('focus', () => pick(i));
+    li.addEventListener('keydown', e => { if (e.key === 'Enter') { pick(i); go(2); } });
+    sites.appendChild(li);
+  });
+  makeDust(body);
+  fitWord();
+  mapNote = cur.placeholder ? `Stand-in map · drop ${body.map} into the folder for the real surface` : '';
+  document.title = `${body.name} — Solar System`;
+  history.replaceState(null, '', `?body=${body.id}`);
+}
+function fitWord() {
+  if (!cur) return;
+  const len = cur.body.word.length, wide = W > 760 && !(H > W * 1.05), cap = wide ? 27 * .68 : 29;   // room for the about panel on wide screens
+  word0.style.fontSize = `min(${Math.min(cap, cap * 4.1 / len)}vw, ${wide ? 36 : 50}vh)`;
+}
+function pick(i) {
+  sel = i;
+  const body = cur.body, s = SITES[i];
+  [...sites.children].forEach((li, j) => li.classList.toggle('on', j === i));
+  siteCredit = s.credit || '';
+  if (s.photo) {
+    card.style.backgroundImage = `url("${s.photo}")`;
+    card.style.backgroundSize = 'cover'; card.style.backgroundPosition = '50% 50%';
+    land.style.backgroundImage = `url("${s.photo}")`;
+    land.style.backgroundSize = 'cover'; land.style.backgroundPosition = '50% 50%';
+  } else if (body.cards) {
+    const [x, y, w, h] = body.cards.boxes[i], C = body.cards;
+    card.style.backgroundSize = `${C.w / w * 100}% ${C.h / h * 100}%`;
+    card.style.backgroundPosition = `${x / (C.w - w) * 100}% ${y / (C.h - h) * 100}%`;
+  } else if (cur.mapUrl) {
+    const cw = card.offsetWidth, ch = card.offsetHeight, sw = cw * 3, sh = sw / 2;
+    card.style.backgroundImage = `url("${cur.mapUrl}")`;
+    card.style.backgroundSize = `${sw}px ${sh}px`;
+    card.style.backgroundPosition = `${cw / 2 - s.u * sw}px ${ch / 2 - s.v * sh}px`;
+  }
+  const r = sites.children[i].getBoundingClientRect();
+  card.style.top = (r.top + r.height / 2 - card.offsetHeight / 2) + 'px';
+  cardNote.textContent = s.note || '';
+  destName.textContent = s.name;
+  destRegion.textContent = s.name === body.region.name ? body.name : body.region.name;
+  destName.style.fontSize = `min(${9.2 * Math.min(1, 12 / s.name.length)}vw, 19vh)`;
+  region.textContent = s.name.toUpperCase();
+  if (!s.photo && !hasLandImg && !isClouds && cur.mapUrl) {
+    const sw = W * 2.6, sh = sw / 2;
+    land.style.backgroundImage = `url("${cur.mapUrl}")`;
+    land.style.backgroundSize = `${sw}px ${sh}px`;
+    land.style.backgroundPosition = `${W / 2 - s.u * sw}px ${H / 2 - s.v * sh}px`;
+  }
+}
+
+/* ---------- moons ---------- */
+const moonCache = {};
+function moonsFor(w) {
+  const id = w.body.id;
+  if (moonCache[id]) return moonCache[id];
+  const list = (MOONS[id] || []).map((m, i) => {
+    const mat = planetMaterial({shader: {gamma: 2, tint: [1, 1, 1], relief: 1.4, hiCol: [0, 0, 0], rim: [.5, .5, .55]}});
+    mat.uniforms.ready.value = 1;
+    mat.uniforms.map.value = canvasTexture(renderer, placeholderMap({proc: {bands: false, pal: ['#4a4846', '#7a7672', '#a8a39d', '#cfcac3'], scale: 3.4}}, 256));
+    mat.uniforms.texel.value.set(1 / 256, 1 / 128);
+    if (m.map) loadOptional(m.map, renderer).then(tx => { if (tx) { mat.uniforms.map.value = tx; mat.uniforms.texel.value.set(1 / tx.image.width, 1 / tx.image.height); } });
+    const g = new THREE.Group(), spin = new THREE.Group();
+    g.add(spin); spin.add(new THREE.Mesh(new THREE.SphereGeometry(1, 48, 36), mat)); g.visible = false;
+    w.group.add(g);
+    const lab = document.createElement('div');
+    lab.className = 'mlab'; lab.innerHTML = `<b>${m.name}</b><i>${m.note}</i>`; lab.style.display = 'none';
+    mlabs.appendChild(lab);
+    lab.tabIndex = 0; lab.setAttribute('role', 'button');
+    lab.addEventListener('keydown', e => { if (e.key === 'Enter' && mode === 'ex' && st < .02) focus(mo); });
+    const mo = {data: m, g, spin, lab, orb: 1.32 + i * .24, size: clamp(.06 + .1 * (m.r / RADIUS_KM[id]) / .27, .035, .16), a0: i * 1.9, speed: .25 / (1 + i * .5), hover: 0};
+    return mo;
+  });
+  moonCache[id] = list;
+  return list;
+}
+function hideMoons() { for (const id in moonCache) for (const m of moonCache[id]) { m.g.visible = false; m.lab.style.display = 'none'; } }
+
+// the about panel shows either the planet or, when a moon is picked, that moon
+let focusMoon = null;
+function panelPlanet(body) {
+  const ab = ABOUT[body.id];
+  about.classList.remove('moon');
+  aboutTitle.textContent = '';
+  aboutText.textContent = ab ? ab.text : body.tagline;
+  aboutStats.innerHTML = ab ? ab.stats.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('') : '';
+}
+function panelMoon(m) {
+  const d = m.data;
+  about.classList.add('moon');
+  aboutTitle.textContent = d.name;
+  aboutText.textContent = d.text || d.note;
+  aboutStats.innerHTML = [['Diameter', `${(2 * d.r).toLocaleString('en-GB')} km`], ['Orbit', `${d.period} days`], ['Discovered', d.found], ['Orbits', cur.body.name]]
+    .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  aboutBack.textContent = `← Back to ${cur.body.name}`;
+}
+function focus(m) { if (focusMoon === m) return unfocus(); focusMoon = m; panelMoon(m); }
+function unfocus() { if (!focusMoon) return; focusMoon = null; panelPlanet(cur.body); }
+aboutBack.addEventListener('click', unfocus);
+
+function enter(w) {
+  cur = w; mode = 'in'; zt0 = performance.now(); leaving = false; pendingBody = null;
+  st = from = to = 0; sel = 0; focusMoon = null;
+  setAct('in');
+  applySkin(w.body);
+  pick(0);
+  hideMoons();
+  w.moons = moonsFor(w);
+  for (const m of w.moons) m.lab.style.display = '';
+}
+function leave(nextId) {
+  if (mode !== 'ex' && mode !== 'in') return;
+  pendingBody = nextId ? byId(nextId) : null;
+  if (to > 0) { go(0); leaving = true; }
+  else startOut();
+}
+function startOut() {
+  mode = 'out'; zt0 = performance.now(); leaving = false;
+  setAct('in');
+  mapNote = ''; siteCredit = '';
+}
+$('home').addEventListener('click', e => { e.preventDefault(); if (mode === 'ex' || mode === 'in') leave(null); else if (mode === 'hub') contract(); });
+$('prev').addEventListener('click', e => { e.preventDefault(); leave(e.currentTarget.dataset.id); });
+$('nextBody').addEventListener('click', e => { e.preventDefault(); leave(e.currentTarget.dataset.id); });
+$('explore').addEventListener('click', e => { e.preventDefault(); go(2); });
+$('next').addEventListener('click', () => { pick((sel + 1) % SITES.length); replay(); });
+rail.forEach((b, i) => b.addEventListener('click', () => go(i)));
+
+/* ---------- the guided tour: a scripted pass through all three acts, any input stops it ---------- */
+let tour = null;
+const TOUR = () => [
+  {run: () => { if (mode === 'hub') contract(); }, until: () => mode === 'universe', timeout: 3000},
+  {run: () => { umoveTo(0, performance.now()); }, wait: 2200},
+  ...Array.from({length: ULAST}, (_, i) => ({run: () => umoveTo((i + 1) / ULAST, performance.now()), wait: 2800})),
+  {run: () => expand(), until: () => mode === 'hub', timeout: 5000},
+  {run: () => { timeVel = 900; }, wait: 4500},
+  {run: () => setScale('distances'), wait: 5000},
+  {run: () => setScale('sizes'), wait: 5000},
+  {run: () => setScale('pretty'), wait: 2500},
+  {run: () => enter(WORLDS.find(w => w.body && w.body.id === 'earth')), until: () => mode === 'ex', timeout: 3000},
+  {run: () => {}, wait: 4000},
+  {run: () => focus(cur.moons[0]), wait: 5000},
+  {run: () => { unfocus(); go(1); }, wait: 4500},
+  {run: () => { pick(0); go(2); }, wait: 7000},
+  {run: () => $('next').click(), wait: 6000},
+  {run: () => leave(null), until: () => mode === 'hub', timeout: 6000},
+  {run: () => endTour()}
+];
+function startTour() {
+  if (tour || !(mode === 'universe' || mode === 'hub')) return;
+  tour = {steps: TOUR(), i: 0, started: performance.now(), stepAt: 0};
+  tourHint.classList.add('on');
+}
+function endTour() { if (!tour) return; tour = null; tourHint.classList.remove('on'); lastUInput = performance.now(); }
+function tickTour(now) {
+  if (!tour) return;
+  const s = tour.steps[tour.i];
+  if (!s) return endTour();
+  if (!s.begun) { s.begun = true; tour.stepAt = now; s.run(); }
+  const el = now - tour.stepAt;
+  const done = s.wait !== undefined ? el >= s.wait : (s.until ? (s.until() || el >= s.timeout) : true);
+  if (done) tour.i++;
+  lastUInput = now;                       // the story's own autoplay stays out of the way
+}
+tourBtn.addEventListener('click', e => { e.preventDefault(); startTour(); });
+addEventListener('pointerdown', e => { if (tour && performance.now() - tour.started > 600 && !e.target.closest('#tourBtn')) endTour(); }, true);
+addEventListener('keydown', () => { if (tour) endTour(); }, true);
+
+/* ---------- input ---------- */
+let lock = 0, mouseX = 0, mouseY = 0, mx = -1e4, my = -1e4, hot = null;
+let dragging = false, sx = 0, sy = 0, lx = 0, ly = 0, lastDrag = -1e9, moved = 0;
+let R0 = 1, R = 1, cx = 0, cy = 0;
+addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; mouseX = e.clientX / W - .5; mouseY = e.clientY / H - .5; });
+addEventListener('wheel', e => {
+  e.preventDefault();
+  const now = performance.now();
+  if (tour) endTour();
+  if (mode === 'universe') { const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY; umoveTo(ux + d * (e.deltaMode === 1 ? .012 : .00075), now); return; }
+  if (mode === 'hub') { timeVel += e.deltaY * .9; return; }
+  if (mode !== 'ex' || Math.abs(e.deltaY) < 8 || now < lock) return;
+  lock = now + 900;
+  go(to + Math.sign(e.deltaY));
+}, {passive: false});
+addEventListener('keydown', e => {
+  if (mode === 'universe') {
+    const i = Math.round(ux * ULAST), now = performance.now();
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { if (i === ULAST) expand(); else umoveTo((i + 1) / ULAST, now); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') umoveTo((i - 1) / ULAST, now);
+    else if (e.key === 'Enter' && i === ULAST) expand();
+    else return;
+    e.preventDefault();
+  } else if (mode === 'hub') {
+    if (e.key === 'Escape') contract();
+  } else if (mode === 'ex') {
+    if (e.key === 'Escape') { if (to === 0) { if (focusMoon) unfocus(); else leave(null); } else go(to - 1); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { if (to === 2) $('next').click(); else go(to + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(to - 1);
+    else return;
+    e.preventDefault();
+  }
+});
+let downAt = 0;
+glCanvas.addEventListener('pointerdown', e => {
+  dragging = true; moved = 0; sx = lx = e.clientX; sy = ly = e.clientY; downAt = performance.now();
+  if (cur) cur.vy = 0;
+  glCanvas.setPointerCapture(e.pointerId); glCanvas.classList.add('drag');
+});
+glCanvas.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+  moved = Math.hypot(e.clientX - sx, e.clientY - sy);
+  if (mode === 'universe') { umoveTo(ux + dx / Math.min(W, 900), performance.now()); return; }
+  if (mode === 'hub') { tDays += dx * 1.4; timeVel = dx * 60; return; }
+  if (mode !== 'ex' || st > .02) return;
+  const k = 1.1 / R0;
+  cur.yaw += dx * k; cur.pitch = clamp(cur.pitch + dy * k, -1, 1); cur.vy = dx * k;
+  lastDrag = performance.now();
+});
+const endDrag = e => {
+  if (!dragging) return;
+  dragging = false; glCanvas.classList.remove('drag'); lastDrag = performance.now();
+  if (e.type !== 'pointerup') return;
+  // a quick vertical swipe on a touch screen steps through a world
+  if (mode === 'ex' && e.pointerType === 'touch' && performance.now() - downAt < 350) {
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dy) > 70 && Math.abs(dx) < 60) { go(dy < 0 ? to + 1 : to - 1); return; }
+  }
+  if (moved >= 6) return;
+  if (mode === 'hub' && hot) { if (hot.body) enter(hot); else location.href = 'sun-timeline.html'; }
+  else if (mode === 'ex') {
+    const hm = cur.moons && st < .02 && cur.moons.find(m => m.sx !== undefined && Math.hypot(e.clientX - m.sx, e.clientY - m.sy) < Math.max(m.rp * 1.8, 18));
+    if (hm) focus(hm);
+    else if (Math.hypot(e.clientX - cx, e.clientY - cy) < R && to < 2) { if (focusMoon) unfocus(); else go(to + 1); }
+  }
+};
+glCanvas.addEventListener('pointerup', endDrag);
+glCanvas.addEventListener('pointercancel', endDrag);
+
+/* ---------- resize ---------- */
+let dpr2 = 1, dprO = 1;
+function resize() {
+  W = innerWidth; H = innerHeight;
+  renderer.setSize(W, H, false);
+  cam.left = -W / 2; cam.right = W / 2; cam.top = H / 2; cam.bottom = -H / 2; cam.updateProjectionMatrix();
+  cloudQuad.scale.set(W, H, 1); cloudMat.uniforms.res.value.set(W, H);
+  uniQuad.scale.set(W, H, 1); renderer.getDrawingBufferSize(uniMat.uniforms.res.value);
+  dpr2 = Math.min(devicePixelRatio, 1.5); dprO = Math.min(devicePixelRatio, 2);
+  dust.width = Math.round(W * dpr2); dust.height = Math.round(H * dpr2);
+  orbits.width = Math.round(W * dprO); orbits.height = Math.round(H * dprO);
+  hubLayout(); fitWord();
+  if (cur && sites.children[sel]) pick(sel);
+}
+addEventListener('resize', resize); resize();
+
+/* ======================================================================
+   Render
+   ====================================================================== */
+const T0 = performance.now();
+let lastNow = T0;
+unextAuto = T0 + 5000;
+setUCaption(0);
+function render(now) {
+  requestAnimationFrame(render);
+  const dt = clamp((now - lastNow) / 1000, 0, .05); lastNow = now;
+  const f = r => 1 - Math.exp(-dt * r);
+  const t = now / 1000;
+  sunMat.uniforms.t.value = t;
+  tickTour(now);
+  const tourable = (mode === 'universe' || mode === 'hub') && !tour;
+  tourBtn.style.opacity = tourable ? '' : 0; tourBtn.style.pointerEvents = tourable ? 'auto' : 'none';
+
+  /* ----- act progress ----- */
+  if (mode === 'expand') { const k = io(seg(now, et0, et0 + (reduced ? 1 : EXPAND))); hubScale = out(seg(k, .2, 1)); if (k >= 1) { mode = 'hub'; setAct('hub'); note.textContent = stdNote(); } }
+  else if (mode === 'contract') { const k = io(seg(now, et0, et0 + (reduced ? 1 : CONTRACT))); hubScale = 1 - out(seg(k, 0, .8)); if (k >= 1) { mode = 'universe'; setAct('uni'); note.textContent = ''; } }
+  else if (mode === 'universe') hubScale = 0;
+  else hubScale = 1;
+  if (mode === 'in') { zoomK = io(seg(now, zt0, zt0 + (reduced ? 1 : ZOOM_IN))); if (zoomK >= 1) { mode = 'ex'; enteredAt = now; setAct('ex'); } }
+  else if (mode === 'out') {
+    zoomK = 1 - io(seg(now, zt0, zt0 + (reduced ? 1 : ZOOM_OUT)));
+    if (zoomK <= 0) {
+      hideMoons();
+      mode = 'hub'; cur = null; setAct('hub'); document.title = 'Solar System'; history.replaceState(null, '', location.pathname);
+      note.textContent = stdNote();
+      if (pendingBody) enter(WORLDS.find(w => w.body === pendingBody));
+    }
+  }
+  if (mode === 'ex' && leaving && st < .01) startOut();
+  const hubK = 1 - zoomK;
+  const inUni = mode === 'universe' || mode === 'expand' || mode === 'contract';
+
+  /* ----- act one ----- */
+  if (inUni) {
+    if (mode === 'universe') {
+      if (!reduced && now - lastUInput > 5000 && now > unextAuto && ustage < ULAST) { ux = (ustage + 1) / ULAST; uomega += 9; unextAuto = now + 3600; }
+      const i = Math.round(ux * ULAST);
+      if (i !== ustage) { uomega += uomega >= 0 ? 7 : -7; ustage = i; setUCaption(i); armed = true; }
+      // the story ends at Today: dwell a moment, then the solar system grows out of the web
+      if (armed && ustage === ULAST && Math.abs(uomega) < 1.5) { if (!todayAt) todayAt = now; else if (now - todayAt > 2600) expand(); }
+      else todayAt = 0;
+    }
+    const tgt = ULK[ustage], k = f(reduced ? 60 : 9);
+    for (const key in tgt) {
+      if (Array.isArray(tgt[key])) { for (let c = 0; c < 3; c++) ucur[key][c] += (tgt[key][c] - ucur[key][c]) * k; }
+      else ucur[key] += (tgt[key] - ucur[key]) * k;
+    }
+    uomega *= Math.exp(-dt * 3.6);
+    const blur = reduced ? 0 : Math.min(1.4, Math.abs(uomega) * .1), rush = reduced ? 0 : clamp(uomega * .06, -1, 1);
+    uevo += dt * ucur.boil * (1 + Math.abs(uomega) * .1);
+    const U = uniMat.uniforms;
+    for (const n of UNIFORMS) U[n].value = ucur[n];
+    U.zoom.value = ucur.zoom * (1 + hubScale * 2.2);          // the web rushes past as the system grows
+    U.c0.value.fromArray(ucur.c0); U.c1.value.fromArray(ucur.c1); U.c2.value.fromArray(ucur.c2);
+    U.t.value = t; U.evo.value = uevo; U.blur.value = Math.max(blur, hubScale * .9); U.rush.value = Math.max(rush, hubScale * .8);
+    U.flick.value = 1 + .1 * Math.sin(t * 2.1) + .06 * Math.sin(t * 5.3);
+    U.fade.value = Math.min(1, (now - T0) / 700) * (1 - seg(hubScale, .3, 1));
+    const active = ux * (UN - 1), bellAt = (uhover >= 0 ? uhover : ux) * (UN - 1), fk = f(22);
+    for (let j = 0; j < UN; j++) {
+      const q = j - bellAt, bell = Math.exp(-q * q / 5.5), on = Math.exp(-(j - active) * (j - active) / .22);
+      const goal = Math.max((j % UPER ? .17 : .28) + bell * .55, on);
+      utickH[j] += (goal - utickH[j]) * fk;
+      uticks[j].style.transform = `scaleY(${utickH[j]})`;
+      uticks[j].style.opacity = .3 + bell * .35 + on * .6;
+    }
+    uniEl.style.opacity = utitle.style.opacity = $('skipUni').style.opacity = 1 - seg(hubScale, 0, .5);
+  }
+  uniQuad.visible = inUni;
+
+  /* ----- act two: time, positions, hover ----- */
+  if (mode === 'hub') {
+    if (!dragging) { tDays += timeVel * dt; timeVel *= Math.exp(-dt * 3); if (Math.abs(timeVel) < 2) tDays += dt * 6; }
+    dateText.textContent = fmtDate(new Date(J2000 + tDays * 864e5));
+  }
+  hot = null;
+  hubTargets();
+  orbAlpha += ((scaleMode === 'sizes' ? 0 : 1) - orbAlpha) * f(6);
+  for (const w of WORLDS) {
+    const p = w.tg, e = w.init ? f(7) : 1; w.init = true;
+    if (w.orbR === undefined) w.orbR = p.orb;
+    w.x += (p.x - w.x) * e; w.y += (p.y - w.y) * e; w.hubR += (p.r - w.hubR) * e; w.orbR += (p.orb - w.orbR) * e;
+    if (mode === 'hub') {
+      const over = Math.hypot(mx - w.x, my - w.y) < Math.max(p.r * (w.rings ? 2.6 : 2.2), 22);
+      if (over && !hot) hot = w;
+      w.hover += ((over ? 1 : 0) - w.hover) * f(10);
+    } else w.hover += (0 - w.hover) * f(10);
+  }
+  glCanvas.classList.toggle('grab', mode === 'ex' && st < .02);
+  glCanvas.classList.toggle('ew', mode === 'universe');
+  if (hubK > 0 && hubScale > 0) drawOrbits(hot); else if (hubScale <= 0) { octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, orbits.width, orbits.height); }
+  const hubUI = hubK * seg(hubScale, .5, 1);
+  orbits.style.opacity = hubK; title.style.opacity = hubUI; dateEl.style.opacity = hubUI; labels.style.opacity = hubUI; $('toUni').style.opacity = hubUI; scaleCtl.style.opacity = hubUI;
+  bg.style.opacity = zoomK;
+
+  /* ----- act three values ----- */
+  st = mix(from, to, io(seg(now, t0, t0 + dur)));
+  const a = clamp(st), b = clamp(st - 1);
+  const portrait = H > W * 1.05;
+  R0 = portrait ? W * .36 : Math.min(H * .3, W * .19);
+  const bz = io(seg(b, 0, .62));
+  const px = portrait ? .5 * W : mix(.5 * W, .36 * W, a);
+  const py = portrait ? mix(.4 * H, .33 * H, a) : .5 * H;
+  const exR = R0 * (1 + a * .04) * Math.exp(bz * 2.5);
+  const exX = mix(px, .5 * W, bz), exY = mix(py, .5 * H, bz);
+  const iw = out(seg(zoomK, .45, 1));
+
+  /* ----- place every world ----- */
+  for (const w of WORLDS) {
+    let x = w.x, y = w.y, r = w.hubR * (1 + w.hover * 1.6) * hubScale;
+    if (w === cur) { x = mix(w.x, exX, zoomK); y = mix(w.y, exY, zoomK); r = mix(r, exR, zoomK); }
+    else r *= hubK;
+    w.group.visible = r > .2;
+    w.group.position.set(x - W / 2, H / 2 - y, 0);
+    w.group.scale.setScalar(r);
+    if (w === cur && mode !== 'hub') {
+      if (!dragging) {
+        if (st < .02) {
+          const rest = now - lastDrag > 1500;
+          if (rest) w.yaw += dt * .08;
+          w.yaw += w.vy; w.vy *= Math.exp(-dt * 4);
+          if (rest) w.pitch += (w.body.restPitch - w.pitch) * f(1.2);
+        } else {
+          const tg = b > 0 ? dirUV(SITES[sel].u, SITES[sel].v) : regionDir;
+          let d = faceYaw(tg) - w.yaw; d = Math.atan2(Math.sin(d), Math.cos(d));
+          w.yaw += d * f(3.6); w.pitch += (faceLat(tg) - w.pitch) * f(3.6); w.vy = 0;
+        }
+      }
+    } else { w.yaw += dt * (.12 + w.hover * .3); if (w.body) w.pitch += (w.body.restPitch - w.pitch) * f(2); }
+    w.tilt.rotation.x = w.pitch; w.spin.rotation.y = w.yaw; w.cloudSpin.rotation.y = t * .01;
+    if (w.uni) {
+      w.uni.ready.value = w.loadedAt ? clamp((now - w.loadedAt) / 600) : 0;
+      if (w.rings) { w.rings.material.uniforms.center.value.copy(w.group.position); w.rings.material.uniforms.R.value = r; w.uni.ringN.value.set(0, Math.cos(w.pitch), Math.sin(w.pitch)); }
+      if (w === cur) {
+        w.uni.hiDir.value.copy(b > .02 ? dirUV(SITES[sel].u, SITES[sel].v) : regionDir);
+        w.uni.hiR.value = b > .02 ? mix(REGION.r, .3, seg(b, 0, .1)) : REGION.r;
+        w.uni.hi.value = clamp(seg(a, .15, .6) + (b > 0 ? 1 : 0));
+      } else w.uni.hi.value = 0;
+    }
+    if (hubK > 0) {
+      // in the true-distance view the inner four sit on top of each other, so their names only show on hover
+      const crowded = scaleMode === 'distances' && w.body && PLANETS.indexOf(w) < 4;
+      // in the true-size row the small worlds sit close together, so their names alternate between two lines
+      const stagger = scaleMode === 'sizes' && w.body && w.hubR < 12 && PLANETS.indexOf(w) % 2 ? 18 : 0;
+      w.lab.style.transform = `translate(${w.x}px, ${w.y + w.hubR * (1 + w.hover * 1.6) + 10 + stagger}px) translateX(-50%)`;
+      w.lab.style.opacity = (.5 + w.hover * .5) * hubUI * (crowded ? w.hover : 1);
+      w.lab.classList.toggle('on', w.hover > .5);
+    }
+  }
+  R = exR; cx = exX; cy = exY;
+
+  /* ----- moons around the current world ----- */
+  let moonHot = false, focusK = 0;
+  if (cur && cur.moons) {
+    const mk = zoomK * (1 - seg(a, 0, .5));
+    for (const m of cur.moons) {
+      const ang = m.a0 + t * m.speed;
+      // a tilted orbit, so moons pass in front of and behind the planet without swinging far out to the sides
+      let x = Math.cos(ang) * m.orb * .88, z = Math.sin(ang) * m.orb, y = Math.sin(ang) * m.orb * .4;
+      // a picked moon leaves its orbit, comes forward and grows beside the panel
+      m.focus = (m.focus || 0) + ((focusMoon === m && st < .02 ? 1 : 0) - (m.focus || 0)) * f(6);
+      const fk = m.focus, wide = W > 760 && !portrait;
+      const tx = wide ? 1.45 : 0, ty = wide ? .72 : 1.35;
+      x = mix(x, tx, fk); y = mix(y, ty, fk); z = mix(z, 1.4, fk);
+      const size = mix(m.size, wide ? .36 : .3, fk);
+      focusK = Math.max(focusK, fk);
+      m.g.visible = mk > .01 && mode !== 'hub';
+      m.g.position.set(x, y, z); m.g.scale.setScalar(size * mk); m.spin.rotation.y = t * .3;
+      const sxp = cx + x * R, syp = cy - y * R, rp = size * mk * R;
+      m.sx = sxp; m.sy = syp; m.rp = rp;
+      const over = mode === 'ex' && st < .02 && Math.hypot(mx - sxp, my - syp) < Math.max(rp * 1.8, 14);
+      if (over) moonHot = true;
+      m.hover += ((over ? 1 : 0) - m.hover) * f(10);
+      const overPanel = wide && sxp > W * .66;     // keep names off the about panel
+      m.lab.style.transform = `translate(${sxp}px, ${syp + rp + 8}px) translateX(-50%)`;
+      m.lab.style.opacity = mk * (z > 0 ? .9 : .5) * (.7 + .3 * m.hover) * (overPanel ? 0 : 1) * (1 - fk);
+      m.lab.classList.toggle('on', m.hover > .5);
+    }
+  }
+  glCanvas.classList.toggle('hot', (mode === 'hub' && !!hot) || moonHot);
+
+  const landing = mode !== 'hub' && !inUni && b > .5;
+  cloudQuad.visible = landing && isClouds;
+  if (cur) cur.group.visible = cur.group.visible && !(landing && isClouds && b > .62);
+  if (cloudQuad.visible) { cloudMat.uniforms.t.value = t; cloudMat.uniforms.k.value = out(seg(b, .5, 1)); cloudMat.uniforms.mouse.value.set(mouseX, mouseY); }
+  renderer.render(scene, cam);
+
+  /* ----- act three DOM ----- */
+  if (!inUni && mode !== 'hub' && cur) {
+    const age = (now - enteredAt) / 1000;
+    const ww = word0.offsetWidth, wh = word0.offsetHeight;
+    const wide = W > 760 && !portrait;
+    const wx = portrait ? 0 : -a * .08 * W - (wide ? (1 - a) * .11 * W : 0);
+    const wy = portrait ? H * -.1 + R * 1.08 + wh * .5 : mouseY * -6;
+    const I = (1 - iw) * 50;
+    word0.style.transform = `translate(calc(-50% + ${wx}px), calc(-50% + ${wy}px))`;
+    word0.style.clipPath = `inset(-10% ${I}% -10% ${I}%)`;
+    word0.style.opacity = (1 - seg(a, .1, .5)) * zoomK;
+    if (portrait) eyebrow.style.transform = `translate(-50%, ${wy + wh / 2 + 14}px)`;
+    else eyebrow.style.transform = `translate(${wx - ww / 2 + ww * .02}px, calc(-100% + ${wy - wh / 2 - 34}px))`;
+    eyebrow.style.opacity = iw * (1 - seg(a, .05, .35));
+    about.style.opacity = iw * (1 - seg(a, 0, .3));
+    if (wide) about.style.transform = `translate(${(1 - iw) * 24}px, calc(-50% + ${focusK * 60}px))`;
+
+    flare.style.left = (cx + R * .74) + 'px'; flare.style.top = (cy - R * .62) + 'px';
+    flare.style.opacity = zoomK * (.88 + .12 * Math.sin(t * 1.3)) * (1 - seg(bz, 0, .35));
+    hint.style.opacity = iw * .8 * (1 - seg(a, 0, .25));
+    const pd = regionDir.clone().applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
+    pin.style.left = (cx + pd.x * R - 6) + 'px'; pin.style.top = (cy - pd.y * R - 8) + 'px';
+    pin.style.opacity = seg(pd.z, .22, .42) * (mode === 'ex' ? seg(age, .2, .7) : 0) * (1 - seg(a, 0, .3));
+
+    const ka = seg(a, .45, 1);
+    word1.style.opacity = ka * (1 - seg(b, .02, .16));
+    word1.style.transform = `translate(calc(-50% + ${portrait ? 0 : .02 * W + (1 - out(ka)) * 40}px), ${portrait ? .46 * H : .56 * H}px)`;
+
+    const so = seg(a, .55, 1) * (1 - seg(b, 0, .14));
+    sites.style.opacity = card.style.opacity = so;
+    sites.style.visibility = card.style.visibility = so < .01 ? 'hidden' : 'visible';
+    sites.style.pointerEvents = card.style.pointerEvents = so < .6 ? 'none' : 'auto';
+    card.style.transform = `translateX(${(1 - out(seg(a, .6, 1))) * 26}px)`;
+    glCanvas.style.pointerEvents = st < 1.02 ? 'auto' : 'none';
+
+    region.style.opacity = seg(b, .14, .26) * (1 - seg(b, .42, .52));
+    const fi = seg(b, .36, .54), fo = seg(b, .62, .96), fogO = fi * (1 - fo);
+    fog.style.opacity = fogO; fog.style.display = fogO > 0 ? '' : 'none';
+
+    land.style.display = landing && !isClouds ? '' : 'none';
+    fore.style.display = landing && hasLandImg ? '' : 'none';
+    dest.style.display = landing ? '' : 'none';
+    if (landing) {
+      const lk = out(seg(b, .5, 1)), fk = out(seg(b, .58, 1)), dk = out(seg(b, .66, .98)), drift = 1 + .02 * Math.sin(t * .18);
+      land.style.transform = `translate(${mouseX * -14}px, ${mix(.2 * H, mouseY * -8, lk)}px) scale(${mix(1.3, 1.05, lk) * drift})`;
+      fore.style.transform = `translate(${mouseX * -46}px, ${mix(.42 * H, 0, fk)}px) scale(1.06)`;
+      dest.style.transform = `translate(${mouseX * -26}px, ${mix(.62 * H, portrait ? .3 * H : .27 * H, dk)}px)`;
+      destRegion.style.opacity = seg(b, .8, 1) * .92;
+    }
+    note.textContent = (landing || so > .01) && siteCredit ? siteCredit : mapNote;
+    const bk = seg(b, .86, 1);
+    bar.style.opacity = bk; bar.style.visibility = bk > 0 ? 'visible' : 'hidden';
+    bar.style.transform = `translate(-50%, ${(1 - out(bk)) * 34}px)`;
+    scrim.style.opacity = seg(b, .6, .9);
+    const on = Math.round(st);
+    rail.forEach((d, i) => d.classList.toggle('on', i === on));
+    if (DEBUG) document.title = `dbg mode=${mode} st=${st.toFixed(2)} yaw=${cur.yaw.toFixed(2)} pitch=${cur.pitch.toFixed(2)} tgt=${faceLat(regionDir).toFixed(2)}`;
+    for (const el of [$('prev'), $('nextBody'), $('rail')]) el.style.opacity = zoomK;
+
+    dctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+    dctx.clearRect(0, 0, W, H);
+    const dustK = mix(1, .7, seg(b, .5, 1)) * zoomK;
+    for (const m of dustMotes) {
+      const x = ((m.x + t * m.s * dustStreak + 2) % 1.1 - .05) * W, y = (m.y + Math.sin(t * .3 + m.p) * .02) * H;
+      dctx.globalAlpha = (.3 + .35 * Math.pow(Math.sin(t * .7 + m.p), 2)) * dustK;
+      dctx.drawImage(sprite, x - m.r * dustStreak, y - m.r, m.r * 2 * dustStreak, m.r * 2);
+    }
+  } else {
+    glCanvas.style.pointerEvents = 'auto';
+    if (DEBUG) document.title = `dbg mode=${mode} ux=${ux.toFixed(2)} ustage=${ustage} hubScale=${hubScale.toFixed(2)} scale=${scaleMode} tour=${tour ? tour.i : '-'}`;
+  }
+}
+requestAnimationFrame(render);
+
+// deep links: ?body=mars opens straight into that world (&site=1&step=2 lands on a site); ?view=hub skips the universe
+const want = byId(qs.get('body'));
+if (want || qs.get('view') === 'hub') {
+  mode = 'hub'; hubScale = 1; ux = 1; ustage = ULAST; setAct('hub');
+  if (qs.get('scale')) setScale(qs.get('scale'));
+  if (want) {
+    enter(WORLDS.find(w => w.body === want));
+    const si = parseInt(qs.get('site')), stp = parseInt(qs.get('step'));
+    if (si >= 0 && si < SITES.length) pick(si);
+    if (stp >= 0 && stp <= 2) { st = from = to = stp; }
+    const mi = parseInt(qs.get('moon'));
+    if (mi >= 0 && cur.moons[mi]) focus(cur.moons[mi]);
+  }
+}
+if (qs.has('tour')) startTour();
+</script>
+</body>
+</html>

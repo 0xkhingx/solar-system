@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Universe</title>
+<meta name="description" content="Scrub from the Big Bang to the last stars. Ten chapters of everything.">
+<style>
+@font-face{font-family:Inter;src:url(fonts/inter.woff2) format('woff2');font-weight:400 600;font-display:swap}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+nav{position:fixed;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:22px 26px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;z-index:3}
+nav a{color:rgba(255,255,255,.45);text-decoration:none}nav a:hover{color:#fff}
+.ui{position:fixed;left:0;right:0;top:64%;display:grid;justify-items:center;padding:0 20px;pointer-events:none}
+.cap{position:relative;width:100%;height:92px}
+.line{position:absolute;inset:0;text-align:center;transition:opacity .2s linear,filter .2s linear}
+.line.off{opacity:0;filter:blur(5px)}
+.line h1{font-weight:600;font-size:clamp(16px,2.05vh,21px);letter-spacing:-.012em;line-height:1.25}
+.line p{margin-top:6px;font-size:clamp(12.5px,1.55vh,15px);line-height:1.3;color:rgba(255,255,255,.5)}
+.line p b{font-weight:500;color:#fff;margin-right:7px}
+.line small{display:block;margin:9px auto 0;max-width:min(560px,86vw);font-size:clamp(11.5px,1.35vh,13.5px);line-height:1.45;color:rgba(255,255,255,.6)}
+.line a{display:inline-block;margin-top:7px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#ffb347;text-decoration:none;pointer-events:auto}
+#track{position:relative;width:min(47vh,84vw);height:64px;margin-top:clamp(12px,2.6vh,26px);pointer-events:auto;cursor:pointer;outline:none}
+#track::before{content:"";position:absolute;inset:-8px -30px}
+#ticks{position:absolute;left:0;right:0;top:0;height:44px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
+#ticks i{display:block;width:1.5px;height:44px;background:#fff;transform-origin:50% 100%;will-change:transform}
+.ends{position:absolute;left:0;right:0;top:54px;display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.42);pointer-events:none}
+.ends span.on{color:#fff;font-weight:500}
+@media (max-width:760px){.line small{display:none}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<nav><a href="index.html">← Solar System</a><a href="sun-timeline.html">Life of the Sun →</a></nav>
+<div class="ui">
+  <div class="cap" id="cap"></div>
+  <div id="track" role="slider" tabindex="0" aria-label="Time" aria-valuemin="0" aria-valuemax="9">
+    <div id="ticks"></div>
+    <div class="ends"><span id="e0">Big Bang</span><span id="e1">Last stars</span></div>
+  </div>
+</div>
+<script type="module">
+import {USTAGES as STAGES, ULOOK as LOOK, UNIFORMS, universeFS} from './universe.js';
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const LAST = STAGES.length - 1, PER = 4, N = LAST * PER + 1;
+const START = clamp(parseInt(new URLSearchParams(location.search).get('stage')) || 0, 0, LAST);   // ?stage=8 opens on a chapter
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const cap = $('cap'), track = $('track'), ticksEl = $('ticks'), e0 = $('e0'), e1 = $('e1');
+
+const ticks = [], tickH = [];
+for (let j = 0; j < N; j++) { const i = document.createElement('i'); ticksEl.appendChild(i); ticks.push(i); tickH.push(.2); }
+
+/* ---------- WebGL ---------- */
+const canvas = $('gl');
+const gl = canvas.getContext('webgl', {antialias: false, alpha: false});
+const VS = `attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, universeFS(false)));
+gl.linkProgram(prog); gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const aLoc = gl.getAttribLocation(prog, 'a');
+gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+const U = {};
+for (const n of ['res','fade','t','evo','blur','rush','flick','c0','c1','c2', ...UNIFORMS]) U[n] = gl.getUniformLocation(prog, n);
+function resize() {
+  const pr = Math.min(devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(innerWidth * pr); canvas.height = Math.round(innerHeight * pr);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.uniform2f(U.res, canvas.width, canvas.height);
+}
+addEventListener('resize', resize); resize();
+
+/* ---------- state ---------- */
+let x = START / LAST;
+let stage = START, omega = 6;
+let evo = 0, lastInput = -1e9, hover = -1, dragX = null;
+const cur = JSON.parse(JSON.stringify(LOOK[START]));
+
+function moveTo(nx, now) {
+  nx = clamp(nx, 0, 1);
+  omega += (nx - x) * 150;
+  x = nx; lastInput = now;
+}
+const px = e => { const r = track.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
+addEventListener('wheel', e => {
+  e.preventDefault();
+  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  moveTo(x + d * (e.deltaMode === 1 ? .012 : .00075), performance.now());
+}, {passive: false});
+track.addEventListener('pointermove', e => {
+  hover = clamp(px(e));
+  if (e.pointerType === 'mouse' && dragX === null) moveTo(hover, performance.now());
+});
+track.addEventListener('pointerleave', () => { hover = -1; });
+addEventListener('pointerdown', e => {
+  if (e.target.closest('a')) return;
+  dragX = e.clientX;
+  if (track.contains(e.target)) moveTo(px(e), performance.now());
+});
+addEventListener('pointermove', e => {
+  if (dragX === null) return;
+  if (track.contains(e.target)) moveTo(px(e), performance.now());
+  else { moveTo(x + (e.clientX - dragX) / Math.min(innerWidth, 900), performance.now()); dragX = e.clientX; }
+});
+addEventListener('pointerup', () => { dragX = null; });
+addEventListener('pointercancel', () => { dragX = null; });
+addEventListener('keydown', e => {
+  const i = Math.round(x * LAST);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') moveTo((i + 1) / LAST, performance.now());
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') moveTo((i - 1) / LAST, performance.now());
+  else return;
+  e.preventDefault();
+});
+
+/* ---------- caption ---------- */
+let curLine = null;
+function setCaption(i) {
+  const s = STAGES[i];
+  const l = document.createElement('div');
+  l.className = 'line off';
+  l.innerHTML = `<h1>${s.t}</h1><p><b>${s.b}</b>${s.c}</p><small>${s.d}</small>` + (s.link ? `<a href="${s.link}">${s.label} →</a>` : '');
+  cap.appendChild(l);
+  void l.offsetHeight;
+  l.classList.remove('off');
+  const prev = curLine; curLine = l;
+  if (prev) { prev.classList.add('off'); setTimeout(() => prev.remove(), 240); }
+  track.setAttribute('aria-valuenow', i);
+  track.setAttribute('aria-valuetext', `${s.b}, ${s.t}`);
+  e0.classList.toggle('on', i === 0);
+  e1.classList.toggle('on', i === LAST);
+}
+setCaption(START);
+
+/* ---------- frame ---------- */
+const t0 = performance.now();
+let last = t0, nextAuto = t0 + 5000;
+function frame(now) {
+  const dt = clamp((now - last) / 1000, 0, .05); last = now;
+  const f = r => 1 - Math.exp(-dt * r);
+  const time = (now - t0) / 1000;
+  if (!reduced && now - lastInput > 5000 && now > nextAuto) {
+    const i = Math.round(x * LAST);
+    x = ((i + 1) % (LAST + 1)) / LAST; omega += 9; nextAuto = now + 3600;
+  }
+  const i = Math.round(x * LAST);
+  if (i !== stage) { omega += omega >= 0 ? 7 : -7; stage = i; setCaption(i); }
+  const tgt = LOOK[stage], k = f(reduced ? 60 : 9);
+  for (const key in tgt) {
+    if (Array.isArray(tgt[key])) { for (let c = 0; c < 3; c++) cur[key][c] += (tgt[key][c] - cur[key][c]) * k; }
+    else cur[key] += (tgt[key] - cur[key]) * k;
+  }
+  omega *= Math.exp(-dt * 3.6);
+  const blur = reduced ? 0 : Math.min(1.4, Math.abs(omega) * .1), rush = reduced ? 0 : clamp(omega * .06, -1, 1);
+  evo += dt * cur.boil * (1 + Math.abs(omega) * .1);
+  for (const n of UNIFORMS) gl.uniform1f(U[n], cur[n]);
+  gl.uniform3fv(U.c0, cur.c0); gl.uniform3fv(U.c1, cur.c1); gl.uniform3fv(U.c2, cur.c2);
+  gl.uniform1f(U.t, time); gl.uniform1f(U.evo, evo); gl.uniform1f(U.blur, blur); gl.uniform1f(U.rush, rush);
+  gl.uniform1f(U.flick, 1 + .1 * Math.sin(time * 2.1) + .06 * Math.sin(time * 5.3));
+  gl.uniform1f(U.fade, Math.min(1, (now - t0) / 500));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  const active = x * (N - 1), bellAt = (hover >= 0 ? hover : x) * (N - 1), fk = f(22);
+  for (let j = 0; j < N; j++) {
+    const q = j - bellAt, bell = Math.exp(-q * q / 5.5), on = Math.exp(-(j - active) * (j - active) / .22);
+    const goal = Math.max((j % PER ? .17 : .28) + bell * .55, on);
+    tickH[j] += (goal - tickH[j]) * fk;
+    ticks[j].style.transform = `scaleY(${tickH[j]})`;
+    ticks[j].style.opacity = .3 + bell * .35 + on * .6;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
