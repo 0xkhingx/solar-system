@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="wa-dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,6 +9,8 @@
 <meta property="og:description" content="From the Big Bang to the solar system. Scrub through the story of everything, then pick a world and drop down to it.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30' fill='none' stroke='%23fff'%3E%3Crect x='-2' y='-4' width='38' height='38' fill='%2305070c' stroke='none'/%3E%3Ccircle cx='17' cy='15' r='5' fill='%23fff' stroke='none'/%3E%3Cellipse cx='17' cy='15' rx='15' ry='6' stroke-width='1.6' transform='rotate(-20 17 15)'/%3E%3C/svg%3E">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<link rel="stylesheet" href="vendor/webawesome.css">
+<script type="module" src="vendor/webawesome.js"></script>
 <style>
 .ic{width:1.25em;height:1.25em;vertical-align:-.28em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @font-face{font-family:Montserrat;src:url(fonts/montserrat.woff2) format('woff2');font-weight:300 900;font-display:swap}
@@ -16,6 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Montserrat,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+:not(:defined){visibility:hidden}
 .lab:focus-visible,.mlab:focus-visible,#sites li:focus-visible{outline:2px solid #fff;outline-offset:4px}
 #tourBtn{transition:opacity .3s}
 #tourHint{left:50%;bottom:4.4vh;transform:translateX(-50%);z-index:21;font-weight:500;font-size:11px;letter-spacing:.17em;text-transform:uppercase;white-space:nowrap;pointer-events:none;padding:9px 16px;border:1px solid rgba(255,255,255,.3);border-radius:2px;background:rgba(5,7,12,.5);opacity:0;transition:opacity .3s}
@@ -45,9 +48,10 @@ body.ex .hb,body.ex .uv{display:none!important}
 #uticks i{display:block;width:1.5px;height:44px;background:#fff;transform-origin:50% 100%;will-change:transform}
 .uends{position:absolute;left:0;right:0;top:54px;display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.42);pointer-events:none}
 .uends span.on{color:#fff;font-weight:500}
-#enterSys{margin-top:clamp(10px,2vh,20px);padding:11px 20px;border:1px solid rgba(255,255,255,.35);border-radius:2px;font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;pointer-events:auto;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s,background .25s}
+#enterSys{margin-top:clamp(10px,2vh,20px);font-size:11px;letter-spacing:.14em;text-transform:uppercase;pointer-events:auto;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+#enterSys::part(base){text-transform:uppercase;letter-spacing:inherit;height:auto;padding:11px 20px;border:1px solid rgba(255,255,255,.35);border-radius:2px;background:none;color:#fff;font-weight:600;transition:background .25s}
 #enterSys.on{opacity:1;transform:none}
-#enterSys:hover{background:rgba(255,255,255,.12)}
+#enterSys::part(base):hover{background:rgba(255,255,255,.12)}
 #utitle{left:0;right:0;top:12vh;z-index:6;text-align:center;pointer-events:none}
 #utitle h1{font-weight:900;font-size:clamp(22px,3.6vw,46px);letter-spacing:-.03em;line-height:1}
 #utitle p{margin-top:8px;font-weight:300;font-size:clamp(11px,1.1vw,14px);letter-spacing:.14em;text-transform:uppercase;opacity:.55}
@@ -65,8 +69,9 @@ body.ex .hb,body.ex .uv{display:none!important}
 .lab i{display:block;margin-top:5px;font-style:normal;font-weight:300;font-size:clamp(10px,.9vw,12.5px);letter-spacing:.03em;opacity:0;transition:opacity .25s}
 .lab.on i{opacity:.75}
 #scaleCtl{left:0;right:0;bottom:19vh;z-index:6;text-align:center;pointer-events:none}
-#scaleCtl button{pointer-events:auto;margin:0 4px;padding:8px 14px;border:1px solid rgba(255,255,255,.25);border-radius:2px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);transition:color .25s,border-color .25s,background .25s}
-#scaleCtl button.on{color:#fff;border-color:#fff;background:rgba(255,255,255,.1)}
+#scaleSel{display:inline-block}
+#scaleCtl wa-radio{pointer-events:auto;margin:0 4px;min-height:0;padding:8px 14px;border:1px solid rgba(255,255,255,.25);border-radius:2px;background:none;font-weight:400;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);transition:color .25s,border-color .25s,background .25s}
+#scaleCtl wa-radio:state(checked){color:#fff;border-color:#fff;background:rgba(255,255,255,.1)}
 #scaleCtl p{margin-top:9px;font-size:11px;letter-spacing:.04em;color:rgba(255,255,255,.5)}
 
 /* moons on a world's first step */
@@ -84,12 +89,13 @@ body.ex .hb,body.ex .uv{display:none!important}
 #gl.grab{cursor:grab}#gl.drag{cursor:grabbing}#gl.hot{cursor:pointer}#gl.ew{cursor:ew-resize}
 #dust{inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
 #flare{z-index:2;width:44vmin;height:44vmin;margin:-22vmin;border-radius:50%;pointer-events:none}
-#about{right:6.2%;top:50%;z-index:7;width:clamp(220px,23vw,350px);transform:translateY(-50%);pointer-events:none}
+#about{right:6.2%;top:50%;z-index:7;width:clamp(220px,23vw,350px);transform:translateY(-50%);pointer-events:none;--spacing:0;border:0;color:inherit}
 #about h2{font-weight:900;font-size:clamp(20px,2.3vw,34px);letter-spacing:-.02em;line-height:1;margin-bottom:12px}
 #about h2:empty{display:none}
 #about p{font-weight:400;font-size:clamp(12px,1.05vw,14.5px);line-height:1.55;color:rgba(255,255,255,.86)}
-#about button{display:none;margin-top:16px;padding:8px 0;font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:auto}
-#about button:hover{color:#fff}#about.moon button{display:inline-block}
+#aboutBack{display:none;margin-top:16px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;pointer-events:auto}
+#aboutBack::part(base){text-transform:uppercase;letter-spacing:inherit;height:auto;padding:8px 0;border:0;background:none;font-weight:600;color:rgba(255,255,255,.7)}
+#aboutBack::part(base):hover{color:#fff}#about.moon #aboutBack{display:inline-block}
 #about dl{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.3)}
 #about dt{font-weight:500;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
 #about dd{margin-top:3px;font-weight:600;font-size:clamp(13px,1.2vw,17px)}
@@ -123,8 +129,9 @@ body.ex .hb,body.ex .uv{display:none!important}
 #bar div{padding:15px 22px;border-right:1px solid #e6e1dc}
 #bar label{display:block;font-weight:500;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8e8680}
 #bar span{display:block;margin-top:5px;font-weight:600;font-size:15px;white-space:nowrap}
-#bar button{background:var(--accent);color:#fff;border-radius:0 3px 3px 0;font-weight:600;font-size:11px;letter-spacing:.09em;text-transform:uppercase;transition:filter .25s}
-#bar button:hover{filter:brightness(.88)}
+#next{font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+#next::part(base){height:100%;text-transform:uppercase;letter-spacing:inherit;border:0;background:var(--accent);color:#fff;border-radius:0 3px 3px 0;font-weight:600;transition:filter .25s}
+#next::part(base):hover{filter:brightness(.88)}
 
 /* chrome */
 header{left:0;right:0;top:0;z-index:20;display:flex;align-items:center;padding:clamp(18px,3.2vh,30px) clamp(20px,2.6vw,42px);font-size:11.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
@@ -159,7 +166,7 @@ header a b{font-weight:800;margin-left:6px}
   #bar{grid-template-columns:1fr 1fr;width:calc(100vw - 32px);bottom:7vh}
   #bar div:nth-child(2){border-right:0}
   #bar div{padding:11px 14px;border-bottom:1px solid #e6e1dc}
-  #bar button{height:46px;border-radius:0 0 3px 0}
+  #next{height:46px}#next::part(base){border-radius:0 0 3px 0}
   #hint{display:none}
   #note{white-space:normal;width:calc(100vw - 32px);text-align:center;font-size:9px}
   #fore{background-size:210% auto}
@@ -176,7 +183,7 @@ header a b{font-weight:800;margin-left:6px}
 <div id="flare" class="ex"></div>
 <canvas id="gl"></canvas>
 <canvas id="dust" class="ex"></canvas>
-<aside id="about" class="ex"><h2 id="aboutTitle"></h2><p id="aboutText"></p><dl id="aboutStats"></dl><button id="aboutBack"></button></aside>
+<wa-card id="about" class="ex" appearance="plain" role="complementary"><h2 id="aboutTitle"></h2><p id="aboutText"></p><dl id="aboutStats"></dl><wa-button id="aboutBack" appearance="plain"></wa-button></wa-card>
 <div id="pin" class="ex"><i></i><span id="pinName"></span></div>
 <div id="word1" class="ex"></div>
 <ul id="sites" class="ex"></ul>
@@ -191,7 +198,7 @@ header a b{font-weight:800;margin-left:6px}
   <div><label id="f0l"></label><span id="f0v"></span></div>
   <div><label id="f1l"></label><span id="f1v"></span></div>
   <div><label id="f2l"></label><span id="f2v"></span></div>
-  <button id="next">Next site <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  <wa-button id="next" variant="brand">Next site <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></wa-button>
 </div>
 <div id="utitle" class="uv"><h1>The story of everything</h1><p>13.8 billion years in nine chapters</p></div>
 <div id="uni" class="uv">
@@ -200,11 +207,11 @@ header a b{font-weight:800;margin-left:6px}
     <div id="uticks"></div>
     <div class="uends"><span id="ue0">Big Bang</span><span id="ue1">Today</span></div>
   </div>
-  <button id="enterSys">Enter the solar system <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  <wa-button id="enterSys" appearance="outlined">Enter the solar system <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></wa-button>
 </div>
 <div id="title" class="hb"><h1>The Solar System</h1><p>One star, eight worlds. Pick one.</p></div>
 <div id="date" class="hb"><b id="dateText"></b><span>Drag or scroll to move through time</span></div>
-<div id="scaleCtl" class="hb"><button data-m="pretty" class="on">Not to scale</button><button data-m="distances">True distances</button><button data-m="sizes">True sizes</button><p id="scaleNote"></p></div>
+<div id="scaleCtl" class="hb"><wa-radio-group id="scaleSel" orientation="horizontal" value="pretty" aria-label="Scale view"><wa-radio appearance="button" value="pretty">Not to scale</wa-radio><wa-radio appearance="button" value="distances">True distances</wa-radio><wa-radio appearance="button" value="sizes">True sizes</wa-radio></wa-radio-group><p id="scaleNote"></p></div>
 <div id="labels" class="hb"></div>
 <div id="mlabs" class="ex"></div>
 <div id="note"></div>
@@ -461,10 +468,10 @@ const SCALE_NOTE = {
 function setScale(m) {
   if (!SCALE_NOTE[m]) return;
   scaleMode = m;
-  [...scaleCtl.querySelectorAll('button')].forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('scaleSel').value = m;
   scaleNote.textContent = SCALE_NOTE[m];
 }
-scaleCtl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && mode === 'hub') setScale(b.dataset.m); });
+$('scaleSel').addEventListener('change', e => { if (mode === 'hub') setScale(e.currentTarget.value); });
 setScale('pretty');
 function hubLayout() {
   const portrait = H > W * 1.05;

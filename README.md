@@ -41,3 +41,5 @@ Everything the pages need is in the folder, so it can be copied or hosted anywhe
 - Three.js loads from a CDN.
 
 Icons: Lucide (ISC licence), inlined as SVG.
+
+Components: the buttons, the scale switcher and the about panel are Web Awesome 3.14 (MIT) web components. `vendor/webawesome.js` and `vendor/webawesome.css` are a prebuilt bundle of just `wa-button`, `wa-radio-group`, `wa-radio`, `wa-card` and the default theme, so the app still has no build step. To add a component, rebundle with esbuild from `@awesome.me/webawesome`.
