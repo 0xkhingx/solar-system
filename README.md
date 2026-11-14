@@ -39,3 +39,5 @@ Everything the pages need is in the folder, so it can be copied or hosted anywhe
 - The Sun timeline is still a separate page load.
 - Earth has no night-side city lights: add a night map and a `night: 'maps/…'` entry on Earth in `bodies.js` to turn them on.
 - Three.js loads from a CDN.
+
+Icons: Lucide (ISC licence), inlined as SVG.

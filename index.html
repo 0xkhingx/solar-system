@@ -10,6 +10,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30' fill='none' stroke='%23fff'%3E%3Crect x='-2' y='-4' width='38' height='38' fill='%2305070c' stroke='none'/%3E%3Ccircle cx='17' cy='15' r='5' fill='%23fff' stroke='none'/%3E%3Cellipse cx='17' cy='15' rx='15' ry='6' stroke-width='1.6' transform='rotate(-20 17 15)'/%3E%3C/svg%3E">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
 <style>
+.ic{width:1.25em;height:1.25em;vertical-align:-.28em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @font-face{font-family:Montserrat;src:url(fonts/montserrat.woff2) format('woff2');font-weight:300 900;font-display:swap}
 :root{--accent:#e8283c;--deep:#2a0d04}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -190,7 +191,7 @@ header a b{font-weight:800;margin-left:6px}
   <div><label id="f0l"></label><span id="f0v"></span></div>
   <div><label id="f1l"></label><span id="f1v"></span></div>
   <div><label id="f2l"></label><span id="f2v"></span></div>
-  <button id="next">Next site →</button>
+  <button id="next">Next site <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
 </div>
 <div id="utitle" class="uv"><h1>The story of everything</h1><p>13.8 billion years in nine chapters</p></div>
 <div id="uni" class="uv">
@@ -199,7 +200,7 @@ header a b{font-weight:800;margin-left:6px}
     <div id="uticks"></div>
     <div class="uends"><span id="ue0">Big Bang</span><span id="ue1">Today</span></div>
   </div>
-  <button id="enterSys">Enter the solar system →</button>
+  <button id="enterSys">Enter the solar system <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
 </div>
 <div id="title" class="hb"><h1>The Solar System</h1><p>One star, eight worlds. Pick one.</p></div>
 <div id="date" class="hb"><b id="dateText"></b><span>Drag or scroll to move through time</span></div>
@@ -211,10 +212,10 @@ header a b{font-weight:800;margin-left:6px}
 <header>
   <a class="logo" href="#" id="home" style="margin-left:0;opacity:1"><svg viewBox="0 0 34 30" fill="none" stroke="#fff" stroke-linecap="round"><circle cx="17" cy="15" r="5" fill="#fff" stroke="none"/><ellipse cx="17" cy="15" rx="15" ry="6" stroke-width="1.6" transform="rotate(-20 17 15)"/></svg>Solar System</a>
   <a href="#" id="prev" class="ex"></a><a href="#" id="nextBody" class="ex"></a>
-  <a href="#" id="toUni" class="hb">← The Universe</a>
-  <a href="#" id="skipUni" class="uv">Skip to the solar system →</a>
-  <a href="#" id="tourBtn">Take the tour</a>
-  <a href="sun-timeline.html">Life of the Sun</a>
+  <a href="#" id="toUni" class="hb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> The Universe</a>
+  <a href="#" id="skipUni" class="uv">Skip to the solar system <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  <a href="#" id="tourBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Take the tour</a>
+  <a href="sun-timeline.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg> Life of the Sun</a>
 </header>
 <div id="tourHint">Tour · tap or press any key to stop</div>
 <div id="rail" class="ex"><button aria-label="Planet"></button><button aria-label="Region"></button><button aria-label="Site"></button></div>
@@ -229,6 +230,7 @@ import {clamp, mix, seg, io, out, dirUV, uvLL, faceYaw, faceLat, XA, YA, SUN,
   planetMaterial, atmosphere, cloudLayer, ringMesh, loadMap, loadOptional, loadRing, placeholderMap, canvasTexture} from './engine.js';
 
 const $ = id => document.getElementById(id);
+const IC_R = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>', IC_L = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>';   // Lucide arrows
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const qs = new URLSearchParams(location.search);
 const DEBUG = qs.has('debug');
@@ -408,7 +410,7 @@ function setUCaption(i) {
   const s = UST[i];
   const l = document.createElement('div');
   l.className = 'uline off';
-  l.innerHTML = `<h1>${s.t}</h1><p><b>${s.b}</b>${s.c}</p><small>${s.d}</small>` + (s.link ? `<a href="${s.link}">${s.label} →</a>` : '');
+  l.innerHTML = `<h1>${s.t}</h1><p><b>${s.b}</b>${s.c}</p><small>${s.d}</small>` + (s.link ? `<a href="${s.link}">${s.label} ${IC_R}</a>` : '');
   ucap.appendChild(l);
   void l.offsetHeight;
   l.classList.remove('off');
@@ -555,8 +557,8 @@ function applySkin(body) {
   word0.textContent = body.word; eyebrow.textContent = body.eyebrow;
   $('pinName').textContent = body.region.name; word1.textContent = body.region.name.toUpperCase();
   const bi = BODIES.indexOf(body), prevB = BODIES[(bi + 7) % 8], nextB = BODIES[(bi + 1) % 8];
-  $('prev').innerHTML = `← <b>${prevB.name}</b>`; $('prev').dataset.id = prevB.id;
-  $('nextBody').innerHTML = `<b>${nextB.name}</b> →`; $('nextBody').dataset.id = nextB.id;
+  $('prev').innerHTML = `${IC_L} <b>${prevB.name}</b>`; $('prev').dataset.id = prevB.id;
+  $('nextBody').innerHTML = `<b>${nextB.name}</b> ${IC_R}`; $('nextBody').dataset.id = nextB.id;
   body.facts.forEach((f, i) => { $(`f${i}l`).textContent = f.label; $(`f${i}v`).textContent = f.value; });
   panelPlanet(body);
   isClouds = body.landing.type === 'clouds'; hasLandImg = !!body.landing.land;
@@ -668,7 +670,7 @@ function panelMoon(m) {
   aboutText.textContent = d.text || d.note;
   aboutStats.innerHTML = [['Diameter', `${(2 * d.r).toLocaleString('en-GB')} km`], ['Orbit', `${d.period} days`], ['Discovered', d.found], ['Orbits', cur.body.name]]
     .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
-  aboutBack.textContent = `← Back to ${cur.body.name}`;
+  aboutBack.innerHTML = `${IC_L} Back to ${cur.body.name}`;
 }
 function focus(m) { if (focusMoon === m) return unfocus(); focusMoon = m; panelMoon(m); }
 function unfocus() { if (!focusMoon) return; focusMoon = null; panelPlanet(cur.body); }
@@ -914,7 +916,7 @@ function render(now) {
     if (w.orbR === undefined) w.orbR = p.orb;
     w.x += (p.x - w.x) * e; w.y += (p.y - w.y) * e; w.hubR += (p.r - w.hubR) * e; w.orbR += (p.orb - w.orbR) * e;
     if (mode === 'hub') {
-      const over = Math.hypot(mx - w.x, my - w.y) < Math.max(p.r * (w.rings ? 2.6 : 2.2), 22);
+      const over = Math.hypot(mx - w.x, my - w.y) < Math.max(Math.min(p.r * (w.rings ? 2.6 : 2.2), p.r + 30), 22);   // capped: the true-size Sun must not be hovered from everywhere
       if (over && !hot) hot = w;
       w.hover += ((over ? 1 : 0) - w.hover) * f(10);
     } else w.hover += (0 - w.hover) * f(10);
@@ -940,7 +942,7 @@ function render(now) {
 
   /* ----- place every world ----- */
   for (const w of WORLDS) {
-    let x = w.x, y = w.y, r = w.hubR * (1 + w.hover * 1.6) * hubScale;
+    let x = w.x, y = w.y, r = (w.hubR + w.hover * Math.min(w.hubR * 1.6, 40)) * hubScale;
     if (w === cur) { x = mix(w.x, exX, zoomK); y = mix(w.y, exY, zoomK); r = mix(r, exR, zoomK); }
     else r *= hubK;
     w.group.visible = r > .2;
@@ -975,7 +977,7 @@ function render(now) {
       const crowded = scaleMode === 'distances' && w.body && PLANETS.indexOf(w) < 4;
       // in the true-size row the small worlds sit close together, so their names alternate between two lines
       const stagger = scaleMode === 'sizes' && w.body && w.hubR < 12 && PLANETS.indexOf(w) % 2 ? 18 : 0;
-      w.lab.style.transform = `translate(${w.x}px, ${w.y + w.hubR * (1 + w.hover * 1.6) + 10 + stagger}px) translateX(-50%)`;
+      w.lab.style.transform = `translate(${w.x}px, ${w.y + w.hubR + w.hover * Math.min(w.hubR * 1.6, 40) + 10 + stagger}px) translateX(-50%)`;
       w.lab.style.opacity = (.5 + w.hover * .5) * hubUI * (crowded ? w.hover : 1);
       w.lab.classList.toggle('on', w.hover > .5);
     }

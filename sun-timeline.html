@@ -6,6 +6,7 @@
 <title>The Life of the Sun</title>
 <meta name="description" content="Scroll across ten billion years and watch the Sun be born, swell and fade.">
 <style>
+.ic{width:1.25em;height:1.25em;vertical-align:-.28em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @font-face{font-family:Inter;src:url(fonts/inter.woff2) format('woff2');font-weight:400 600;font-display:swap}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -29,7 +30,7 @@ nav a{color:rgba(255,255,255,.45);text-decoration:none;pointer-events:auto}nav a
 </head>
 <body>
 <canvas id="gl"></canvas>
-<nav><a href="index.html">← Solar System</a><a href="universe-timeline.html">The Universe →</a></nav>
+<nav><a href="index.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Solar System</a><a href="universe-timeline.html">The Universe <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></nav>
 <div class="ui">
   <div class="cap" id="cap"></div>
   <div id="track" role="slider" tabindex="0" aria-label="Time" aria-valuemin="0" aria-valuemax="9">
