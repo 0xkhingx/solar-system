@@ -100,6 +100,12 @@ body.ex .hb,body.ex .uv{display:none!important}
 #about dt{font-weight:500;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
 #about dd{margin-top:3px;font-weight:600;font-size:clamp(13px,1.2vw,17px)}
 
+#geo{left:0;top:0;z-index:7;padding:6px 10px;border-radius:2px;background:rgba(5,7,12,.55);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;pointer-events:none;opacity:0}
+#eraCtl{right:6.2%;bottom:15vh;z-index:7;width:clamp(220px,23vw,350px)}
+.eraHead{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.eraHead b{font-weight:600;color:#fff;text-align:right}
+#era{display:block;--track-size:3px;--thumb-width:14px;--thumb-height:14px}
+#era::part(track){background:rgba(255,255,255,.25)}#era::part(indicator){background:#fff}#era::part(thumb){background:#fff;border-color:#fff}#era::part(marker){background:rgba(255,255,255,.5)}
 #pin{z-index:6;left:0;top:0;display:flex;align-items:center;gap:9px;font-weight:600;font-size:11px;letter-spacing:.16em;text-transform:uppercase;pointer-events:none;white-space:nowrap}
 #pin i{width:12px;height:12px;border-radius:50%;background:#fff;position:relative;box-shadow:0 0 0 4px var(--accent)}
 #pin i::after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid #fff;animation:pulse 2s ease-out infinite}
@@ -155,6 +161,7 @@ header a b{font-weight:800;margin-left:6px}
   #word0{font-size:29vw}
   #eyebrow{font-size:12px}
   #word1{font-size:15vw}
+  #eraCtl{left:16px;right:16px;top:9.5vh;bottom:auto;width:auto}
   #about{left:16px;right:16px;top:auto;bottom:4vh;width:calc(100vw - 32px);transform:none!important}
   #about h2{font-size:20px;margin-bottom:8px}#about p{font-size:12px;line-height:1.45}
   #about dl{grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:10px}#about dd{font-size:13px}
@@ -184,6 +191,8 @@ header a b{font-weight:800;margin-left:6px}
 <canvas id="gl"></canvas>
 <canvas id="dust" class="ex"></canvas>
 <wa-card id="about" class="ex" appearance="plain" role="complementary"><h2 id="aboutTitle"></h2><p id="aboutText"></p><dl id="aboutStats"></dl><wa-button id="aboutBack" appearance="plain"></wa-button></wa-card>
+<div id="eraCtl" class="ex"><div class="eraHead"><span>Earth through time</span><b id="eraWhen">Today</b></div><wa-slider id="era" min="0" max="11" step="1" value="11" with-markers aria-label="Earth through time"></wa-slider></div>
+<div id="geo" class="ex"></div>
 <div id="pin" class="ex"><i></i><span id="pinName"></span></div>
 <div id="word1" class="ex"></div>
 <ul id="sites" class="ex"></ul>
@@ -546,6 +555,7 @@ function go(n) {
   n = clamp(n, 0, 2);
   if (n === to) return;
   if (n > 0) unfocus();
+  if (n > 0 && eraI >= 0) setEra(-1);
   from = st; to = n; t0 = performance.now();
   const lo = Math.min(from, to), hi = Math.max(from, to);
   const d = (clamp(hi, 0, 1) - clamp(lo, 0, 1)) * 1300 + (clamp(hi, 1, 2) - clamp(lo, 1, 2)) * 2500;
@@ -568,6 +578,7 @@ function applySkin(body) {
   $('nextBody').innerHTML = `<b>${nextB.name}</b> ${IC_R}`; $('nextBody').dataset.id = nextB.id;
   body.facts.forEach((f, i) => { $(`f${i}l`).textContent = f.label; $(`f${i}v`).textContent = f.value; });
   panelPlanet(body);
+  if (body.history) { $('era').max = body.history.length; $('era').value = body.history.length; $('eraWhen').textContent = 'Today'; }
   isClouds = body.landing.type === 'clouds'; hasLandImg = !!body.landing.land;
   land.style.backgroundImage = hasLandImg ? `url("${body.landing.land}")` : '';
   fore.style.backgroundImage = hasLandImg ? `url("${body.landing.fore}")` : '';
@@ -642,8 +653,66 @@ function subsolar(d = new Date()) {
   return {lat: Math.asin(Math.sin(eps) * Math.sin(lam)) / rad, lon: (((ra - gmst) % 360) + 540) % 360 - 180};
 }
 { const s = subsolar(new Date(Date.UTC(2025, 5, 21, 12))); console.assert(Math.abs(s.lat - 23.44) < .1 && Math.abs(s.lon) < 1, 'subsolar()', s); }
-const noteFor = w => w.placeholder ? `Stand-in map · drop ${w.body.map} into the folder for the real surface` : w.live ? w.liveNote : '';
+const noteFor = w => w.placeholder ? `Stand-in map · drop ${w.body.map} into the folder for the real surface` : eraI >= 0 ? 'Ancient Earth: C. R. Scotese, PALEOMAP Project · CC BY 4.0' : w.live ? w.liveNote : '';
 const liveSun = new THREE.Vector3();
+
+/* ---------- Earth through time: swap the surface for a reconstruction of that age ---------- */
+let eraI = -1, eraT0 = 0, eraW = null;       // eraI: index into body.history, -1 = today
+const eraTex = {};
+function setEra(i) {
+  const w = cur, h = w.body.history, u = w.uni;
+  if (i === eraI || !h) return;
+  eraI = i; eraW = w;
+  w.base = w.base || {texture: u.map.value};
+  if (eraT0) { u.map.value = u.map2.value; u.fade.value = 0; eraT0 = 0; }       // finish a fade in progress
+  for (const k of ['night', 'spec', 'bump']) u['has' + k[0].toUpperCase() + k.slice(1)].value = i < 0 && u[k].value ? 1 : 0;   // city lights and today's relief belong to today
+  $('era').value = i < 0 ? h.length : i;
+  $('eraWhen').textContent = i < 0 ? 'Today' : h[i].when;
+  mapNote = noteFor(w);
+  if (!focusMoon) panelPlanet(w.body);
+  const show = m => { if (eraI === i && eraW === w) { u.map2.value = m.texture; eraT0 = performance.now(); } };
+  if (i < 0) return show(w.base);
+  const get = j => eraTex[j] || (eraTex[j] = loadMap({map: h[j].map, proc: w.body.proc}, renderer));
+  get(i).then(m => { show(m); h.forEach((e, j) => get(j)); });      // the chosen era first, then the rest in the background
+}
+$('era').addEventListener('input', e => { if (cur && cur.body.history && mode === 'ex') { const v = +e.currentTarget.value; setEra(v >= cur.body.history.length ? -1 : v); } });
+
+/* ---------- countries: name what is under the pointer and outline it ---------- */
+let GEO = null, geoHot = null, geoK = 0;
+const eraCtl = $('eraCtl'), geoEl = $('geo'), geoV = new THREE.Vector3();
+function loadGeo(url) {
+  GEO = [];
+  fetch(url).then(r => r.json()).then(list => {
+    for (const c of list) {
+      let a = 180, b = -180, lo = 90, hi = -90;
+      for (const r of c.r) for (let i = 0; i < r.length; i += 2) { a = Math.min(a, r[i]); b = Math.max(b, r[i]); lo = Math.min(lo, r[i + 1]); hi = Math.max(hi, r[i + 1]); }
+      c.box = [a, b, lo, hi];
+    }
+    GEO = list;
+  }).catch(() => {});
+}
+// even-odd ray cast over every ring of a country, so holes and islands both work
+function geoAt(lat, lon) {
+  for (const c of GEO) {
+    if (lon < c.box[0] || lon > c.box[1] || lat < c.box[2] || lat > c.box[3]) continue;
+    let inside = false;
+    for (const r of c.r) for (let i = 0, n = r.length, j = n - 2; i < n; j = i, i += 2)
+      if ((r[i + 1] > lat) !== (r[j + 1] > lat) && lon < (r[j] - r[i]) * (lat - r[i + 1]) / (r[j + 1] - r[i + 1]) + r[i]) inside = !inside;
+    if (inside) return c;
+  }
+  return null;
+}
+// a country's border as unit vectors on the globe; long edges are subdivided so they follow the map, not a chord
+function geoDirs(c) {
+  return c.dirs || (c.dirs = c.r.map(r => {
+    const out = [];
+    for (let i = 0, n = r.length; i < n; i += 2) {
+      const j = (i + 2) % n, steps = Math.max(1, Math.ceil(Math.max(Math.abs(r[j] - r[i]), Math.abs(r[j + 1] - r[i + 1])) / 4));
+      for (let k = 0; k < steps; k++) out.push(dirLL(mix(r[i + 1], r[j + 1], k / steps), mix(r[i], r[j], k / steps)));
+    }
+    return out;
+  }));
+}
 
 /* ---------- moons ---------- */
 const moonCache = {};
@@ -675,11 +744,11 @@ function hideMoons() { for (const id in moonCache) for (const m of moonCache[id]
 // the about panel shows either the planet or, when a moon is picked, that moon
 let focusMoon = null;
 function panelPlanet(body) {
-  const ab = ABOUT[body.id];
+  const ab = ABOUT[body.id], h = eraI >= 0 && body.history[eraI];
   about.classList.remove('moon');
-  aboutTitle.textContent = '';
-  aboutText.textContent = ab ? ab.text : body.tagline;
-  aboutStats.innerHTML = ab ? ab.stats.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('') : '';
+  aboutTitle.textContent = h ? h.title : '';
+  aboutText.textContent = h ? h.text : ab ? ab.text : body.tagline;
+  aboutStats.innerHTML = (h ? [['When', h.when], ['Period', h.period]] : ab ? ab.stats : []).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
 }
 function panelMoon(m) {
   const d = m.data;
@@ -700,8 +769,10 @@ function enter(w) {
   if (w.body.liveSun) {
     const s = subsolar();
     w.live = dirLL(s.lat, s.lon); w.yaw = faceYaw(w.live) + .8;      // open on the day side with the night edge in view
+    w.liveK = 1;
     w.liveNote = `Day and night as they are right now · ${new Date().toISOString().slice(11, 16)} UTC`;
   }
+  if (w.body.geo && !GEO) loadGeo(w.body.geo);
   setAct('in');
   applySkin(w.body);
   pick(0);
@@ -716,6 +787,7 @@ function leave(nextId) {
   else startOut();
 }
 function startOut() {
+  if (eraI >= 0) setEra(-1);
   mode = 'out'; zt0 = performance.now(); leaving = false;
   setAct('in');
   mapNote = ''; siteCredit = '';
@@ -783,6 +855,7 @@ addEventListener('wheel', e => {
   go(to + Math.sign(e.deltaY));
 }, {passive: false});
 addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('wa-slider, wa-radio-group')) return;
   if (mode === 'universe') {
     const i = Math.round(ux * ULAST), now = performance.now();
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { if (i === ULAST) expand(); else umoveTo((i + 1) / ULAST, now); }
@@ -988,7 +1061,8 @@ function render(now) {
     w.tilt.rotation.x = w.pitch; w.spin.rotation.y = w.yaw; w.cloudSpin.rotation.y = t * .01;
     if (w.live) {     // real sunlight on the globe view, easing back to studio light for the region and the descent
       liveSun.copy(w.live).applyAxisAngle(YA, w.yaw).applyAxisAngle(XA, w.pitch);
-      w.uni.sun.value.copy(SUN).lerp(liveSun, w === cur && mode !== 'hub' ? zoomK * (1 - a) : 0).normalize();
+      w.liveK = mix(w.liveK, eraI < 0 ? 1 : 0, f(4));                 // ancient Earth is shown fully lit
+      w.uni.sun.value.copy(SUN).lerp(liveSun, w === cur && mode !== 'hub' ? zoomK * (1 - a) * w.liveK : 0).normalize();
     }
     if (w.uni) {
       w.uni.ready.value = w.loadedAt ? clamp((now - w.loadedAt) / 600) : 0;
@@ -1010,6 +1084,12 @@ function render(now) {
     }
   }
   R = exR; cx = exX; cy = exY;
+
+  if (eraT0) {
+    const u = eraW.uni, k = seg(now, eraT0, eraT0 + (reduced ? 1 : 700));
+    u.fade.value = k;
+    if (k >= 1) { u.map.value = u.map2.value; u.fade.value = 0; eraT0 = 0; }
+  }
 
   /* ----- moons around the current world ----- */
   let moonHot = false, focusK = 0;
@@ -1062,6 +1142,8 @@ function render(now) {
     else eyebrow.style.transform = `translate(${wx - ww / 2 + ww * .02}px, calc(-100% + ${wy - wh / 2 - 34}px))`;
     eyebrow.style.opacity = iw * (1 - seg(a, .05, .35));
     about.style.opacity = iw * (1 - seg(a, 0, .3));
+    about.style.visibility = iw * (1 - seg(a, 0, .3)) < .02 ? 'hidden' : 'visible';      // its controls must not take clicks while invisible
+    eraCtl.style.display = cur.body.history && !focusMoon ? '' : 'none'; eraCtl.style.opacity = about.style.opacity; eraCtl.style.visibility = about.style.visibility;
     if (wide) about.style.transform = `translate(${(1 - iw) * 24}px, calc(-50% + ${focusK * 60}px))`;
 
     flare.style.left = (cx + R * .74) + 'px'; flare.style.top = (cy - R * .62) + 'px';
@@ -1069,7 +1151,21 @@ function render(now) {
     hint.style.opacity = iw * .8 * (1 - seg(a, 0, .25));
     const pd = regionDir.clone().applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
     pin.style.left = (cx + pd.x * R - 6) + 'px'; pin.style.top = (cy - pd.y * R - 8) + 'px';
-    pin.style.opacity = seg(pd.z, .22, .42) * (mode === 'ex' ? seg(age, .2, .7) : 0) * (1 - seg(a, 0, .3));
+    pin.style.opacity = seg(pd.z, .22, .42) * (mode === 'ex' ? seg(age, .2, .7) : 0) * (1 - seg(a, 0, .3)) * (eraI < 0 ? 1 : 0);
+
+    // the country under the pointer (on touch screens: under the centre of the globe)
+    let geoNow = null;
+    if (GEO && cur.body.geo && mode === 'ex' && st < .02 && !focusMoon && !moonHot && eraI < 0) {
+      const gx = ((touchUI ? cx : mx) - cx) / R, gy = (cy - (touchUI ? cy : my)) / R, g2 = gx * gx + gy * gy;
+      if (g2 < .96) {
+        geoV.set(gx, gy, Math.sqrt(1 - g2)).applyAxisAngle(XA, -cur.pitch).applyAxisAngle(YA, -cur.yaw);
+        geoNow = geoAt(Math.asin(geoV.y) * 180 / Math.PI, (Math.atan2(geoV.z, -geoV.x) * 180 / Math.PI + 360) % 360 - 180);
+      }
+    }
+    if (geoNow && geoNow !== geoHot) { geoHot = geoNow; geoEl.textContent = geoHot.c ? `${geoHot.n} · ${geoHot.c}` : geoHot.n; }
+    geoK += ((geoNow ? 1 : 0) - geoK) * f(12);
+    geoEl.style.opacity = geoK;
+    geoEl.style.transform = touchUI ? `translate(${cx}px, ${cy - R - 34}px) translateX(-50%)` : `translate(${mx + 16}px, ${my + 18}px)`;
 
     const ka = seg(a, .45, 1);
     word1.style.opacity = ka * (1 - seg(b, .02, .16));
@@ -1113,6 +1209,21 @@ function render(now) {
       const x = ((m.x + t * m.s * dustStreak + 2) % 1.1 - .05) * W, y = (m.y + Math.sin(t * .3 + m.p) * .02) * H;
       dctx.globalAlpha = (.3 + .35 * Math.pow(Math.sin(t * .7 + m.p), 2)) * dustK;
       dctx.drawImage(sprite, x - m.r * dustStreak, y - m.r, m.r * 2 * dustStreak, m.r * 2);
+    }
+    if (geoHot && geoK > .01) {          // the hovered country's border, drawn on the near side of the globe only
+      dctx.globalAlpha = geoK; dctx.strokeStyle = '#fff'; dctx.lineWidth = 1.5; dctx.lineJoin = 'round'; dctx.beginPath();
+      for (const ring of geoDirs(geoHot)) {
+        let pen = false;
+        for (let i = 0; i <= ring.length; i++) {
+          geoV.copy(ring[i % ring.length]).applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
+          if (geoV.z < .02) { pen = false; continue; }
+          const x = cx + geoV.x * R, y = cy - geoV.y * R;
+          if (pen) dctx.lineTo(x, y); else dctx.moveTo(x, y);
+          pen = true;
+        }
+      }
+      dctx.stroke();
+      if (touchUI) { dctx.beginPath(); dctx.arc(cx, cy, 5, 0, 6.2832); dctx.stroke(); }
     }
   } else {
     glCanvas.style.pointerEvents = 'auto';

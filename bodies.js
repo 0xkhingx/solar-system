@@ -59,6 +59,32 @@ export const BODIES = [
     map: 'maps/1k_earth.jpg',
     clouds: 'maps/1k_earth_clouds.jpg', night: 'maps/1k_earth_night.jpg', spec: 'maps/1k_earth_spec.jpg', bump: 'maps/1k_earth_bump.jpg',
     liveSun: true,   // lit from where the Sun really is right now
+    geo: 'data/countries.json',   // country borders (Natural Earth 110m): hover names the country and continent
+    // Earth through time, oldest first; today is the implicit last stop. Maps: C. R. Scotese, PALEOMAP PaleoAtlas (CC BY 4.0).
+    history: [
+      {map: 'maps/paleo/750.jpg', when: '750 million years ago', period: 'Cryogenian', title: 'Rodinia breaks apart',
+        text: 'The supercontinent Rodinia is splitting. Life is still microscopic, and the planet is heading into its deepest ice ages, the Snowball Earth glaciations.'},
+      {map: 'maps/paleo/540.jpg', when: '540 million years ago', period: 'Cambrian', title: 'The Cambrian explosion',
+        text: 'Most land lies in the southern hemisphere, where the giant continent Gondwana has formed. In the seas, nearly every major group of animals appears within a few tens of millions of years.'},
+      {map: 'maps/paleo/400.jpg', when: '400 million years ago', period: 'Devonian', title: 'Life moves ashore',
+        text: 'Plants are spreading over the land and the first forests are close. Fish rule the seas, and the first four-limbed animals will soon leave the water.'},
+      {map: 'maps/paleo/300.jpg', when: '300 million years ago', period: 'Carboniferous', title: 'The coal forests',
+        text: 'Vast swamp forests are laying down much of the world\u2019s coal. Ice covers the southern lands as the continents close in to build Pangaea.'},
+      {map: 'maps/paleo/250.jpg', when: '250 million years ago', period: 'Permian to Triassic', title: 'Pangaea and the Great Dying',
+        text: 'Almost all land is joined in one supercontinent, Pangaea. The largest mass extinction in Earth\u2019s history wipes out most species in the oceans.'},
+      {map: 'maps/paleo/200.jpg', when: '200 million years ago', period: 'Triassic to Jurassic', title: 'Pangaea begins to split',
+        text: 'Rifts are opening between North America and Africa, where the Atlantic will form. After another mass extinction, dinosaurs take over the land.'},
+      {map: 'maps/paleo/150.jpg', when: '150 million years ago', period: 'Jurassic', title: 'The age of giants',
+        text: 'The young Atlantic is a narrow sea. Giant sauropods walk the continents and the first birds take to the air.'},
+      {map: 'maps/paleo/100.jpg', when: '100 million years ago', period: 'Cretaceous', title: 'A hothouse world',
+        text: 'There is little or no ice at the poles, and seas far higher than today flood the continents. South America and Africa have just parted.'},
+      {map: 'maps/paleo/066.jpg', when: '66 million years ago', period: 'End of the Cretaceous', title: 'The asteroid',
+        text: 'An asteroid about 10 km across strikes what is now the Yucat\u00e1n in Mexico. The dinosaurs, apart from the birds, die out, while India drifts north toward Asia.'},
+      {map: 'maps/paleo/035.jpg', when: '35 million years ago', period: 'Eocene', title: 'The world cools',
+        text: 'Antarctica, now alone at the south pole, begins to freeze over. India is colliding with Asia and pushing up the Himalaya.'},
+      {map: 'maps/paleo/001.jpg', when: '20,000 years ago', period: 'Last ice age', title: 'The last ice age',
+        text: 'Ice sheets kilometres thick cover Canada and northern Europe. The sea is about 120 m lower, joining Siberia to Alaska and Britain to the mainland.'}
+    ],
     proc: {bands: false, pal: ['#0b2a5c', '#17519a', '#3f8a4a', '#8c7a4a', '#e8e8e8'], scale: 2.0},
     palette: {deep: '#03091a', bg: ['#2d74b8', '#15406f', '#081d38', '#03091a'], accent: '#4dd0ff',
       flare: ['rgba(235,245,255,.95)', 'rgba(150,200,255,.42)', 'rgba(100,160,255,.1)'], fog: ['#e9f3ff', '#c6dcf4', '#4a79a8'], scrim: '4,14,32'},

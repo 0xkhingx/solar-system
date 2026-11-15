@@ -29,13 +29,13 @@ export const PLANET_VS = `
   void main(){ vUv = uv; vObj = normalize(position); vN = normalize(mat3(modelMatrix) * normal);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`;
 export const PLANET_FS = `
-    uniform sampler2D map, night, spec, bump, ringMap; uniform vec2 texel, ringR; uniform vec3 sun, hiDir, tint, hiCol, rimCol, ringN;
-    uniform float hi, hiR, ready, relief, gamma, hasNight, hasSpec, hasBump;
+    uniform sampler2D map, map2, night, spec, bump, ringMap; uniform vec2 texel, ringR; uniform vec3 sun, hiDir, tint, hiCol, rimCol, ringN;
+    uniform float hi, hiR, ready, relief, gamma, fade, hasNight, hasSpec, hasBump;
     varying vec2 vUv; varying vec3 vObj; varying vec3 vN;
     float luma(vec2 u){ return dot(texture2D(map, u).rgb, vec3(.3,.6,.1)); }
     float hgt(vec2 u){ return mix(luma(u), texture2D(bump, u).r, hasBump); }   // a real height map when the body has one
     void main(){
-      vec3 col = texture2D(map, vUv).rgb; col = pow(col, vec3(gamma)) * tint;
+      vec3 col = mix(texture2D(map, vUv).rgb, texture2D(map2, vUv).rgb, fade); col = pow(col, vec3(gamma)) * tint;
       // relief from the map's own brightness (relief = 0 for gas giants)
       vec3 n = normalize(vN);
       vec3 t = normalize(cross(vec3(0.,1.,0.), n)), b = cross(n, t);
@@ -70,7 +70,7 @@ export function planetMaterial(body) {
   const s = body.shader;
   return new THREE.ShaderMaterial({
     uniforms: {
-      map: {value: null}, ready: {value: 0}, texel: {value: new THREE.Vector2(1 / 2048, 1 / 1024)},
+      map: {value: null}, map2: {value: null}, fade: {value: 0}, ready: {value: 0}, texel: {value: new THREE.Vector2(1 / 2048, 1 / 1024)},
       sun: {value: SUN.clone()}, hiDir: {value: new THREE.Vector3(0, 0, 1)}, hi: {value: 0}, hiR: {value: .62},
       tint: {value: v3(s.tint)}, gamma: {value: s.gamma}, relief: {value: s.relief},
       hiCol: {value: v3(s.hiCol)}, rimCol: {value: v3(s.rim)},
