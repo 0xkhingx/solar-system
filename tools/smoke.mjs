@@ -35,11 +35,14 @@ await mkdir(OUT, {recursive: true});
 
 const run = (page, i) => new Promise(done => {
   const shot = join(OUT, `${i}-${page.replace(/[^a-z0-9]+/gi, '_')}.png`);
-  const p = spawn(chrome, ['--headless=new', '--hide-scrollbars', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-logging=stderr', '--v=0',
+  // live APIs are unreachable here: the smoke test checks the page, not the services, and must not hammer them (CelesTrak blocks repeat fetchers)
+  const p = spawn(chrome, ['--headless=new', '--hide-scrollbars', '--host-resolver-rules=MAP earthquake.usgs.gov ~NOTFOUND, MAP celestrak.org ~NOTFOUND, MAP api.wheretheiss.at ~NOTFOUND, MAP api.open-meteo.com ~NOTFOUND', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-logging=stderr', '--v=0',
     '--virtual-time-budget=10000', '--window-size=1280,800', `--screenshot=${shot}`, base + page]);
-  let log = '';
+  let log = '', hung = false;
+  const kill = setTimeout(() => { hung = true; p.kill(); }, 180000);   // a page that never settles is a failure, not a stuck test (the universe shader alone needs ~50 s in software GL)
   p.stderr.on('data', d => { log += d; });
-  p.on('close', () => done({page, shot, errors: log.split('\n').filter(l => /CONSOLE|Uncaught|Content Security/.test(l) && BAD.test(l))}));
+  p.on('close', () => { clearTimeout(kill); const errors = log.split('\n').filter(l => /CONSOLE|Uncaught|Content Security/.test(l) && BAD.test(l));
+    if (hung) errors.push('timed out after 180 s (the page never let virtual time run out)'); done({page, shot, errors}); });
 });
 
 let failed = 0;
