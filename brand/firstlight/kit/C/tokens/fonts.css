@@ -1,0 +1,8 @@
+:root {
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-display-weight: 600;
+  --font-display-tracking: 0.160em;
+  --font-text: "Montserrat", system-ui, sans-serif;
+  --font-text-weight: 400;
+  --font-text-tracking: 0.000em;
+}

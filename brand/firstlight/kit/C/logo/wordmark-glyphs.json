@@ -1,0 +1,169 @@
+{
+ "units": "wordmark: cap height 100, cap top y=0, baseline y=100, x from the pen origin; index = data-glyph",
+ "text": "FIRSTLIGHT",
+ "glyphs": [
+  {
+   "index": 1,
+   "char": "F",
+   "x0": 13.43,
+   "x1": 86.43,
+   "pen_x": 0.0,
+   "advance": 91.0,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     13.43,
+     32.0
+    ]
+   ]
+  },
+  {
+   "index": 2,
+   "char": "I",
+   "x0": 127.29,
+   "x1": 145.86,
+   "pen_x": 113.86,
+   "advance": 45.57,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     127.29,
+     145.86
+    ]
+   ]
+  },
+  {
+   "index": 3,
+   "char": "R",
+   "x0": 195.71,
+   "x1": 281.14,
+   "pen_x": 182.29,
+   "advance": 104.43,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": []
+  },
+  {
+   "index": 4,
+   "char": "S",
+   "x0": 314.57,
+   "x1": 394.43,
+   "pen_x": 309.57,
+   "advance": 88.43,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     366.21,
+     392.77
+    ]
+   ]
+  },
+  {
+   "index": 5,
+   "char": "T",
+   "x0": 421.43,
+   "x1": 506.29,
+   "pen_x": 420.86,
+   "advance": 86.0,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     454.57,
+     473.14
+    ]
+   ]
+  },
+  {
+   "index": 6,
+   "char": "L",
+   "x0": 543.14,
+   "x1": 614.0,
+   "pen_x": 529.71,
+   "advance": 85.57,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     543.14,
+     561.71
+    ]
+   ]
+  },
+  {
+   "index": 7,
+   "char": "I",
+   "x0": 651.57,
+   "x1": 670.14,
+   "pen_x": 638.14,
+   "advance": 45.57,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     651.57,
+     670.14
+    ]
+   ]
+  },
+  {
+   "index": 8,
+   "char": "G",
+   "x0": 712.86,
+   "x1": 807.14,
+   "pen_x": 706.57,
+   "advance": 110.29,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     714.1,
+     733.42
+    ],
+    [
+     788.29,
+     805.86
+    ]
+   ]
+  },
+  {
+   "index": 9,
+   "char": "H",
+   "x0": 853.14,
+   "x1": 942.0,
+   "pen_x": 839.71,
+   "advance": 115.71,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     853.14,
+     871.71
+    ],
+    [
+     923.43,
+     942.0
+    ]
+   ]
+  },
+  {
+   "index": 10,
+   "char": "T",
+   "x0": 978.86,
+   "x1": 1063.71,
+   "pen_x": 978.29,
+   "advance": 86.0,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     1012.0,
+     1030.57
+    ]
+   ]
+  }
+ ]
+}
