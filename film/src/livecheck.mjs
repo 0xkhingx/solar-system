@@ -12,7 +12,7 @@ c.on('Log.entryAdded', p => { if (p.entry.level === 'error') problems.push('log:
 c.on('Network.responseReceived', p => { const h = new URL(p.response.url).host; if (/usgs|celestrak|wheretheiss|open-meteo/.test(h)) calls[h] = p.response.status; });
 c.on('Network.loadingFailed', p => problems.push('failed: ' + p.errorText + (p.blockedReason ? ' (' + p.blockedReason + ')' : '')));
 await c.send('Page.navigate', {url: base + '?body=earth'});
-await sleep(9000);
+await sleep(+process.env.WAIT || 9000);
 const title = await c.evaluate('document.title');
 // tap the middle of the globe, like a visitor would
 for (const type of ['mousePressed', 'mouseReleased']) await c.send('Input.dispatchMouseEvent', {type, x: 640, y: 360, button: 'left', clickCount: 1});

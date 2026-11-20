@@ -18,11 +18,12 @@ export function loadLive() {
     live.iss = {};
     let cached = null;
     try { const c = JSON.parse(localStorage.getItem('firstlight.issTle')); if (c && Date.now() - c.at < 72e5) cached = c.tle; } catch {}
-    // CelesTrak asks clients not to fetch the same set more than every two hours, and answers 503 to addresses that do;
-    // wheretheiss.at republishes the same NORAD elements, so it stands in when CelesTrak says no
-    const tleFrom = url => getJSON(url, {text: true, timeout: 20000}).then(t => (parseTLE(t), t));   // nobody waits on the orbit: allow a slow first connection
-    (cached ? Promise.resolve(cached) : tleFrom('https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=tle')
-      .catch(() => tleFrom('https://api.wheretheiss.at/v1/satellites/25544/tles?format=text'))
+    // CelesTrak asks clients not to fetch the same set more than every two hours, and answers 503 (or stops answering)
+    // to addresses that do; wheretheiss.at republishes the same NORAD elements, so it stands in when CelesTrak says no.
+    // CelesTrak gets 6 s, which a normal answer never needs; the fallback gets 20 s for a slow first connection.
+    const tleFrom = (url, timeout) => getJSON(url, {text: true, timeout}).then(t => (parseTLE(t), t));
+    (cached ? Promise.resolve(cached) : tleFrom('https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=tle', 6000)
+      .catch(() => tleFrom('https://api.wheretheiss.at/v1/satellites/25544/tles?format=text', 20000))
       .then(tle => { try { localStorage.setItem('firstlight.issTle', JSON.stringify({at: Date.now(), tle})); } catch {} return tle; }))
       .then(tle => { live.iss = {el: parseTLE(tle)}; }).catch(e => console.warn('ISS unavailable', e));
   }
