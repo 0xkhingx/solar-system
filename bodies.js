@@ -7,7 +7,7 @@
 // landing        : 'surface' uses land/fore images when given, else an orbital close-up of the map at the site.
 //                  'clouds' is a procedural cloud-deck descent tinted with the three colours given.
 
-// Site photos live in photos/ (Earth: Wikimedia Commons, credits in each site; Mars: the generated images from the original prompt).
+// Site photos live in photos/ (Earth: Wikimedia Commons, credits in each site; Mars: NASA photos, with generated foreground and card layers credited as illustration).
 
 export const BODIES = [
   {
@@ -125,13 +125,13 @@ export const BODIES = [
     region: {name: 'Tharsis', lat: 2, lon: -112, r: .62},
     sites: [
       {name: 'Olympus Mons', lat: 18.65, lon: -133.8, note: 'The tallest volcano in the solar system',
-        photo: 'photos/mars-olympus.jpg', credit: 'NASA / JPL / USGS (Viking) · Public domain'},
+        photo: 'photos/mars-olympus.jpg', credit: 'NASA / JPL / USGS (Viking) · Public domain · Foreground rocks: illustration'},
       {name: 'Valles Marineris', lat: -13.9, lon: -59.2, note: 'A canyon as long as the United States is wide',
-        photo: 'photos/mars-valles.jpg', credit: 'NASA / JPL / USGS (Viking) · Public domain'},
+        photo: 'photos/mars-valles.jpg', credit: 'NASA / JPL / USGS (Viking) · Public domain · Foreground rocks: illustration'},
       {name: 'Gale Crater', lat: -5.4, lon: 137.8, note: 'Where Curiosity found an ancient lakebed',
-        photo: 'photos/mars-gale.jpg', credit: 'NASA / JPL-Caltech (Curiosity) · Public domain'},
+        photo: 'photos/mars-gale.jpg', credit: 'NASA / JPL-Caltech (Curiosity) · Public domain · Foreground rocks: illustration'},
       {name: 'Jezero Delta', lat: 18.4, lon: 77.6, note: 'A river delta, now explored by Perseverance',
-        photo: 'photos/mars-jezero.jpg', credit: 'NASA / JPL-Caltech (Perseverance) · Public domain'}
+        photo: 'photos/mars-jezero.jpg', credit: 'NASA / JPL-Caltech (Perseverance) · Public domain · Foreground rocks: illustration'}
     ],
     cards: {sheet: 'photos/mars-cards.webp', w: 2336, h: 1744,
       boxes: [[0, 0, 1150, 810], [1186, 0, 1150, 810], [0, 900, 1150, 810], [1186, 900, 1150, 810]]},

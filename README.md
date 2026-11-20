@@ -1,4 +1,4 @@
-# Solar System Explorer
+# Firstlight
 
 An educational, interactive tour in one page, in three acts:
 
@@ -22,16 +22,21 @@ Run locally: `python -m http.server 8765` in this folder, then open `http://loca
 | `explorer.html` | Redirects into `index.html` so old links keep working. |
 | `bodies.js` | One config per planet (maps, palette, shader knobs, rings, clouds, night map, region and sites with real coordinates and photos, landing type, facts), plus `ORBITS`, `DUST`, `ABOUT`, `MOONS` and `RADIUS_KM`. **Edit this to add or tune a world.** |
 | `universe.js` | The universe chapters, their looks and the fragment shader. Shared by the app and the standalone page. |
-| `engine.js` | Shared maths, planet shader (relief, region highlight, night lights, ring shadow), atmosphere, cloud layer, rings, map loading with seam fix and pole pinch, procedural stand-in maps generated in a worker. |
+| `earth-live.js` | Live Earth data: the last day's earthquakes (USGS), the ISS orbit (CelesTrak, cached two hours) and the weather card for a tapped spot (Open-Meteo). |
+| `orbit.js` | Satellite position from a two-line element set: Kepler orbit plus J2 drift. Within about 10 km of the live ISS position. |
+| `tools/smoke.mjs` | `node tools/smoke.mjs`: serves the site with `vercel.json`'s headers (including the CSP), opens each page in headless Chrome and fails on page errors or failed self-checks. Screenshots go to `tools/smoke-out/`. |
+| `vercel.json` | Content Security Policy (add any new API host to `connect-src`) and cache headers for the asset folders. |
+| `engine.js` | `getJSON` (fetch with a timeout and status check), shared maths, planet shader (relief, region highlight, night lights, ring shadow), atmosphere, cloud layer, rings, map loading with seam fix and pole pinch, procedural stand-in maps generated in a worker. |
 
 ## Imagery and credits
 
-Everything the pages need is in the folder, so it can be copied or hosted anywhere. Only Three.js still comes from a CDN; the fonts (Montserrat, Inter; SIL Open Font License) are in `fonts/`.
+Everything the pages need is in the folder, so it can be copied or hosted anywhere. Three.js 0.187 is vendored in `vendor/three/` (MIT); the fonts (Montserrat, Inter; SIL Open Font License) are in `fonts/`.
 
 - **Planet maps** (`maps/1k_*.jpg`, plus the Moon, Earth's clouds and Saturn's ring strips): James Hastings-Trew's planet maps, fetched from the threex.planets repo. Credit required; check his terms for commercial use. If a file fails to load a procedural stand-in is drawn. To use other maps, replace the files or edit `map` in `bodies.js`.
 - **Earth extras**: `maps/1k_earth_spec.jpg` (ocean mask for the sun glint) and `maps/1k_earth_bump.jpg` (height map for relief) are from the same James Hastings-Trew set. Earth is lit from where the Sun really is at the moment you open it (`liveSun` in `bodies.js`), easing back to studio light for the region and landing steps. Its four extra sites (Amazon, Antarctica, Vatnajökull, Mount Fuji) use Wikimedia Commons photographs (CC BY 3.0 / 4.0, CC BY-SA 2.0 / 2.5), credited on screen.
 - **Countries** (`data/countries.json`): Natural Earth 1:110m country borders (public domain), reduced to names, continents and rounded outlines. Pointing at Earth names the country and continent and draws its border; on touch screens it names whatever is under the centre of the globe. Borders are Natural Earth's de facto boundaries.
 - **Earth through time** (`maps/paleo/`): eleven reconstructions from 750 million to 20,000 years ago, from C. R. Scotese's PALEOMAP PaleoAtlas for GPlates (CC BY 4.0, Zenodo record 10251792), resized to 1k and credited on screen while shown. The eras and their captions are the `history` list on Earth in `bodies.js`.
+- **Live Earth**: earthquakes from the USGS feed (public domain), the ISS orbit from CelesTrak elements, and weather, local time and sunrise for any tapped spot from Open-Meteo (CC BY 4.0, free for non-commercial use). All credited on screen. Clouds stay over the ground they cover, and the real sunlight refreshes every minute.
 - **Earth's night lights** (`maps/1k_earth_night.jpg`): the city-lights texture from the three.js examples (`earth_lights_2048.png`), resized to 1k.
 - **Site photographs** (`photos/`): Earth's four are Wikimedia Commons photographs (CC BY 4.0 / CC BY-SA 2.0, 2.5, 4.0); Mercury, Venus and Mars sites are NASA mission imagery (MESSENGER, Magellan, Viking, Curiosity, Perseverance; public domain), fetched from Commons. Each shows its credit on the landing step. `photos/mars-*.webp` are generated images used for the Mars cards and landing layers. Add a `photo` and `credit` to any site in `bodies.js` to change a picture.
 
@@ -41,7 +46,6 @@ Everything the pages need is in the folder, so it can be copied or hosted anywhe
 - Moons other than Earth's use a procedural grey surface; real moon maps can be added per moon with a `map` entry in `MOONS`.
 - Venus "photos" are Magellan radar reconstructions with exaggerated heights, which the credit line says.
 - The Sun timeline is still a separate page load.
-- Three.js loads from a CDN.
 
 Icons: Lucide (ISC licence), inlined as SVG.
 

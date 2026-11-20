@@ -1,4 +1,4 @@
-// Shared engine for the solar-system explorer: maths, planet shader, atmosphere, rings, clouds, map loading.
+// Shared engine for the Firstlight: maths, planet shader, atmosphere, rings, clouds, map loading.
 import * as THREE from 'three';
 
 /* ---------- maths ---------- */
@@ -22,6 +22,13 @@ export const XA = new THREE.Vector3(1, 0, 0), YA = new THREE.Vector3(0, 1, 0);
 export const SUN = new THREE.Vector3(.62, .5, .6).normalize();
 
 const v3 = a => new THREE.Vector3(a[0], a[1], a[2]);
+
+// fetch with a timeout and a status check, so a slow or failing service rejects instead of hanging or parsing an error page
+export async function getJSON(url, {timeout = 8000, text = false} = {}) {
+  const r = await fetch(url, {signal: AbortSignal.timeout(timeout)});
+  if (!r.ok) throw new Error(`${r.status} ${url}`);
+  return text ? r.text() : r.json();
+}
 
 /* ---------- planet surface ---------- */
 export const PLANET_VS = `

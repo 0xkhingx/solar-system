@@ -3,12 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Solar System</title>
-<meta name="description" content="From the Big Bang to the solar system. Scrub through the story of everything, then pick a world, spin it, light up a region and drop down to it.">
-<meta property="og:title" content="Solar System">
-<meta property="og:description" content="From the Big Bang to the solar system. Scrub through the story of everything, then pick a world and drop down to it.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30' fill='none' stroke='%23fff'%3E%3Crect x='-2' y='-4' width='38' height='38' fill='%2305070c' stroke='none'/%3E%3Ccircle cx='17' cy='15' r='5' fill='%23fff' stroke='none'/%3E%3Cellipse cx='17' cy='15' rx='15' ry='6' stroke-width='1.6' transform='rotate(-20 17 15)'/%3E%3C/svg%3E">
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<title>Firstlight</title>
+<meta name="description" content="From the Big Bang to the solar system to a live Earth. Scrub through the story of everything, pick a world and drop down to it, then tap anywhere on Earth for its time and weather.">
+<meta property="og:title" content="Firstlight">
+<meta property="og:description" content="From the Big Bang to the solar system to a live Earth. Scrub through the story of everything, pick a world and drop down to it, then tap anywhere on Earth for its time and weather.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Firstlight">
+<meta property="og:url" content="https://solar-system-three-swart.vercel.app/">
+<meta property="og:image" content="https://solar-system-three-swart.vercel.app/icons/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Firstlight: Earth with live day and night, the Moon, the ISS and today's earthquakes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Firstlight">
+<meta name="twitter:description" content="From the Big Bang to the solar system to a live Earth. Scrub through the story of everything, pick a world and drop down to it, then tap anywhere on Earth for its time and weather.">
+<meta name="theme-color" content="#05070c">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='11.2 7.8 87.7 87.7'%3E%3Crect x='0' y='0' width='110' height='110' fill='%2305070c'/%3E%3Cpath fill='%23fff' d='M65.91 13.3A40 40 0 0 1 34.09 86.7Z'/%3E%3Cg fill='%23e8283c'%3E%3Ccircle cx='41.93' cy='33.42' r='5.5'/%3E%3Ccircle cx='25.59' cy='45.96' r='5.5'/%3E%3Ccircle cx='31.03' cy='63.58' r='5.5'/%3E%3C/g%3E%3C/svg%3E">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
 <link rel="stylesheet" href="vendor/webawesome.css">
 <script type="module" src="vendor/webawesome.js"></script>
 <style>
@@ -19,8 +31,18 @@
 html,body{height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Montserrat,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
 :not(:defined){visibility:hidden}
-.lab:focus-visible,.mlab:focus-visible,#sites li:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.lab:focus-visible,.mlab:focus-visible,#sites li:focus-visible,#utrack:focus-visible{outline:2px solid #fff;outline-offset:4px}
 #tourBtn{transition:opacity .3s}
+#aboutDlg{margin:auto;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:auto;padding:28px 30px 24px;border:1px solid rgba(255,255,255,.14);border-radius:4px;
+  background:rgba(8,11,18,.97);color:#fff;font-size:13px;line-height:1.55;box-shadow:0 30px 80px rgba(0,0,0,.6);user-select:text;-webkit-user-select:text}
+#aboutDlg::backdrop{background:rgba(2,3,6,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#aboutDlg h2{font-weight:600;font-size:15px;letter-spacing:.16em;text-transform:uppercase}
+#aboutDlg .lead{margin-top:10px;font-size:15px;color:rgba(255,255,255,.88)}
+#aboutDlg .by{margin-top:10px;color:rgba(255,255,255,.6)}#aboutDlg a{color:#fff;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.35)}
+#aboutDlg h3{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#aboutDlg dl{display:grid;grid-template-columns:7.6em 1fr;gap:6px 16px;margin-top:10px}#aboutDlg dt{color:rgba(255,255,255,.55)}#aboutDlg dd{color:rgba(255,255,255,.88)}
+#aboutDlg .x{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:36px;height:36px;opacity:.7}#aboutDlg .x:hover{opacity:1}
+@media (max-width:760px){#aboutDlg{padding:22px 20px 18px}#aboutDlg dl{grid-template-columns:1fr;gap:2px}#aboutDlg dd{margin-bottom:8px}#aboutBtn span{display:none}}
 #tourHint{left:50%;bottom:4.4vh;transform:translateX(-50%);z-index:21;font-weight:500;font-size:11px;letter-spacing:.17em;text-transform:uppercase;white-space:nowrap;pointer-events:none;padding:9px 16px;border:1px solid rgba(255,255,255,.3);border-radius:2px;background:rgba(5,7,12,.5);opacity:0;transition:opacity .3s}
 #tourHint.on{opacity:1}
 #app{position:fixed;inset:0;overflow:hidden;background:#05070c}
@@ -101,12 +123,27 @@ body.ex .hb,body.ex .uv{display:none!important}
 #about dd{margin-top:3px;font-weight:600;font-size:clamp(13px,1.2vw,17px)}
 
 #geo{left:0;top:0;z-index:7;padding:6px 10px;border-radius:2px;background:rgba(5,7,12,.55);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;pointer-events:none;opacity:0}
+#qinfo{left:0;top:0;z-index:7;max-width:min(320px,80vw);padding:7px 11px;border-radius:2px;background:rgba(5,7,12,.72);font-weight:500;font-size:11.5px;line-height:1.35;pointer-events:none;opacity:0}
+#qinfo b{font-weight:700;color:#ff8a3d;margin-right:6px}#qinfo span{display:block;margin-top:2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+#place{left:0;top:0;z-index:8;width:272px;padding:14px 16px 12px;border-radius:3px;background:rgba(5,7,12,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 18px 40px rgba(0,0,0,.45);opacity:0;pointer-events:none;user-select:text;-webkit-user-select:text}
+#place .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+#place h3{font-weight:800;font-size:17px;letter-spacing:-.01em;line-height:1.15}
+#place .ph span{display:block;margin-top:4px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+#place .x{display:grid;place-items:center;width:32px;height:32px;margin:-8px -10px 0 0;opacity:.7;transition:opacity .2s}#place .x:hover{opacity:1}
+#place dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2)}
+#place dt{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#place dd{margin-top:3px;font-weight:600;font-size:13px}#place dd small{font-weight:400;font-size:10px;opacity:.6}
+#place .pe{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);font-size:12px;color:rgba(255,255,255,.7)}
+#place .pf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+#place .pf a{font-size:9.5px;color:rgba(255,255,255,.5)}#place .pf a:hover{color:#fff}
+#place .go{min-height:32px;font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
 #eraCtl{right:6.2%;bottom:15vh;z-index:7;width:clamp(220px,23vw,350px)}
 .eraHead{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
 .eraHead b{font-weight:600;color:#fff;text-align:right}
 #era{display:block;--track-size:3px;--thumb-width:14px;--thumb-height:14px}
 #era::part(track){background:rgba(255,255,255,.25)}#era::part(indicator){background:#fff}#era::part(thumb){background:#fff;border-color:#fff}#era::part(marker){background:rgba(255,255,255,.5)}
 #pin{z-index:6;left:0;top:0;display:flex;align-items:center;gap:9px;font-weight:600;font-size:11px;letter-spacing:.16em;text-transform:uppercase;pointer-events:none;white-space:nowrap}
+#pin.flip{flex-direction:row-reverse;transform:translateX(calc(-100% + 12px))}
 #pin i{width:12px;height:12px;border-radius:50%;background:#fff;position:relative;box-shadow:0 0 0 4px var(--accent)}
 #pin i::after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid #fff;animation:pulse 2s ease-out infinite}
 @keyframes pulse{from{transform:scale(.4);opacity:1}to{transform:scale(1.4);opacity:0}}
@@ -142,8 +179,8 @@ body.ex .hb,body.ex .uv{display:none!important}
 /* chrome */
 header{left:0;right:0;top:0;z-index:20;display:flex;align-items:center;padding:clamp(18px,3.2vh,30px) clamp(20px,2.6vw,42px);font-size:11.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
 header>*{pointer-events:auto}
-.logo{display:flex;align-items:center;gap:12px;margin-right:auto;font-weight:800;font-size:19px;letter-spacing:-.01em;text-transform:none}
-.logo svg{width:34px;height:30px}
+.logo{display:flex;align-items:center;gap:12px;margin-right:auto;font-weight:600;font-size:19px;letter-spacing:.16em;text-transform:uppercase}
+.logo svg{width:30px;height:30px}
 header a{margin-left:clamp(16px,2.6vw,38px);opacity:.92;transition:opacity .2s}
 header a:hover{opacity:1}
 header a b{font-weight:800;margin-left:6px}
@@ -156,18 +193,18 @@ header a b{font-weight:800;margin-left:6px}
 
 @media (max-width:760px){
   header{font-size:10px;letter-spacing:.03em}.logo{font-size:0}header a[href="sun-timeline.html"]{display:none}
-  #title{top:9vh}#date{bottom:5vh}#utitle{top:8vh}#scaleCtl{bottom:15vh}#scaleCtl p{display:none}#mlabs{display:none}
+  #title{top:11vh}#date{bottom:5vh}#utitle{top:11vh}#scaleCtl{bottom:15vh}#scaleCtl p{display:none}#mlabs{display:none}
   #uni{top:58%}.uline small{display:none}
   #word0{font-size:29vw}
   #eyebrow{font-size:12px}
   #word1{font-size:15vw}
   #eraCtl{left:16px;right:16px;top:9.5vh;bottom:auto;width:auto}
-  #about{left:16px;right:16px;top:auto;bottom:4vh;width:calc(100vw - 32px);transform:none!important}
+  #about{left:16px;right:16px;top:auto;bottom:calc(1.6vh + 42px);width:calc(100vw - 32px);transform:none!important}
   #about h2{font-size:20px;margin-bottom:8px}#about p{font-size:12px;line-height:1.45}
   #about dl{grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:10px}#about dd{font-size:13px}
   #rail{display:grid;left:14px}
   #sites{right:18px;top:auto;bottom:11vh;transform:none;gap:22px}
-  #card{right:auto;left:18px;top:auto!important;bottom:11vh;width:42vw}
+  #card{right:auto;left:18px;top:auto!important;bottom:11vh;width:34vw}
   #card a{left:8px;bottom:8px}#card p{display:none}
   #dest b{font-size:11vw}#dest small{font-size:7vw}
   #bar{grid-template-columns:1fr 1fr;width:calc(100vw - 32px);bottom:7vh}
@@ -175,6 +212,7 @@ header a b{font-weight:800;margin-left:6px}
   #bar div{padding:11px 14px;border-bottom:1px solid #e6e1dc}
   #next{height:46px}#next::part(base){border-radius:0 0 3px 0}
   #hint{display:none}
+  #place{left:16px;right:16px;top:auto;bottom:4vh;width:auto;background:rgba(5,7,12,.95);transform:none!important}
   #note{white-space:normal;width:calc(100vw - 32px);text-align:center;font-size:9px}
   #fore{background-size:210% auto}
 }
@@ -193,6 +231,8 @@ header a b{font-weight:800;margin-left:6px}
 <wa-card id="about" class="ex" appearance="plain" role="complementary"><h2 id="aboutTitle"></h2><p id="aboutText"></p><dl id="aboutStats"></dl><wa-button id="aboutBack" appearance="plain"></wa-button></wa-card>
 <div id="eraCtl" class="ex"><div class="eraHead"><span>Earth through time</span><b id="eraWhen">Today</b></div><wa-slider id="era" min="0" max="11" step="1" value="11" with-markers aria-label="Earth through time"></wa-slider></div>
 <div id="geo" class="ex"></div>
+<div id="qinfo" class="ex"></div>
+<section id="place" class="ex" aria-live="polite" aria-label="This place, right now"></section>
 <div id="pin" class="ex"><i></i><span id="pinName"></span></div>
 <div id="word1" class="ex"></div>
 <ul id="sites" class="ex"></ul>
@@ -211,7 +251,7 @@ header a b{font-weight:800;margin-left:6px}
 </div>
 <div id="utitle" class="uv"><h1>The story of everything</h1><p>13.8 billion years in nine chapters</p></div>
 <div id="uni" class="uv">
-  <div class="ucap" id="ucap"></div>
+  <div class="ucap" id="ucap" aria-live="polite"></div>
   <div id="utrack" role="slider" tabindex="0" aria-label="Time" aria-valuemin="0" aria-valuemax="8">
     <div id="uticks"></div>
     <div class="uends"><span id="ue0">Big Bang</span><span id="ue1">Today</span></div>
@@ -226,10 +266,11 @@ header a b{font-weight:800;margin-left:6px}
 <div id="note"></div>
 <div id="loading">Loading worlds</div>
 <header>
-  <a class="logo" href="#" id="home" style="margin-left:0;opacity:1"><svg viewBox="0 0 34 30" fill="none" stroke="#fff" stroke-linecap="round"><circle cx="17" cy="15" r="5" fill="#fff" stroke="none"/><ellipse cx="17" cy="15" rx="15" ry="6" stroke-width="1.6" transform="rotate(-20 17 15)"/></svg>Solar System</a>
+  <a class="logo" href="#" id="home" style="margin-left:0;opacity:1"><svg viewBox="16 9 78 82" aria-hidden="true"><path fill="#fff" d="M65.91 13.3A40 40 0 0 1 34.09 86.7Z"/><g fill="#e8283c"><circle cx="41.93" cy="33.42" r="5.5"/><circle cx="25.59" cy="45.96" r="5.5"/><circle cx="31.03" cy="63.58" r="5.5"/></g></svg>Firstlight</a>
   <a href="#" id="prev" class="ex"></a><a href="#" id="nextBody" class="ex"></a>
   <a href="#" id="toUni" class="hb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> The Universe</a>
   <a href="#" id="skipUni" class="uv">Skip to the solar system <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  <a href="#" id="aboutBtn" aria-haspopup="dialog" aria-label="About and credits"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span> About</span></a>
   <a href="#" id="tourBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Take the tour</a>
   <a href="sun-timeline.html"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg> Life of the Sun</a>
 </header>
@@ -238,14 +279,49 @@ header a b{font-weight:800;margin-left:6px}
 <div id="hint" class="ex">Drag to spin · click the planet to explore</div>
 </main>
 
+<dialog id="aboutDlg" aria-labelledby="aboutTitle">
+  <button class="x" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  <h2 id="aboutTitle">Firstlight</h2>
+  <p class="lead">An interactive journey from the Big Bang to the solar system, ending on a live Earth: real daylight, today's earthquakes, the ISS overhead and the weather anywhere you tap.</p>
+  <p class="by">Designed and built by <a href="https://www.kynigma.agency" target="_blank" rel="noopener">Kynigma</a>.</p>
+  <h3>Imagery</h3>
+  <dl>
+    <dt>Planet maps</dt><dd>James Hastings-Trew</dd>
+    <dt>Ancient Earth</dt><dd>C. R. Scotese, PALEOMAP Project · CC BY 4.0</dd>
+    <dt>Countries</dt><dd>Natural Earth · public domain</dd>
+    <dt>Earth at night</dt><dd>three.js examples</dd>
+    <dt>Site photos</dt><dd>NASA (MESSENGER, Magellan, Viking, Curiosity, Perseverance) · public domain; Earth photographers on Wikimedia Commons, credited on each landing</dd>
+    <dt>Mars landings</dt><dd>Foreground rocks are illustration</dd>
+  </dl>
+  <h3>Live data</h3>
+  <dl>
+    <dt>Earthquakes</dt><dd>USGS · public domain</dd>
+    <dt>ISS orbit</dt><dd>CelesTrak</dd>
+    <dt>Weather</dt><dd><a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · CC BY 4.0</dd>
+  </dl>
+  <h3>Built with</h3>
+  <dl>
+    <dt>Code</dt><dd>three.js (MIT), Web Awesome (MIT), Lucide icons (ISC)</dd>
+    <dt>Type</dt><dd>Montserrat and Inter · SIL Open Font License</dd>
+  </dl>
+</dialog>
+
 <script type="module">
 import * as THREE from 'three';
 import {BODIES, byId, ORBITS, DUST, ABOUT, MOONS, RADIUS_KM} from './bodies.js';
 import {USTAGES, ULOOK, UNIFORMS, universeFS} from './universe.js';
+import {satPos} from './orbit.js';
+import {live, loadLive, weatherAt, placeCard, localTime, ago, esc} from './earth-live.js';
 import {clamp, mix, seg, io, out, dirUV, dirLL, uvLL, faceYaw, faceLat, XA, YA, SUN,
-  planetMaterial, atmosphere, cloudLayer, ringMesh, loadMap, loadOptional, loadRing, placeholderMap, canvasTexture} from './engine.js';
+  planetMaterial, atmosphere, cloudLayer, ringMesh, loadMap, loadOptional, loadRing, placeholderMap, canvasTexture, getJSON} from './engine.js';
 
 const $ = id => document.getElementById(id);
+const aboutDlg = $('aboutDlg');
+$('aboutBtn').addEventListener('click', e => { e.preventDefault(); aboutDlg.showModal(); });
+aboutDlg.addEventListener('click', e => {        // close button, or a click outside the panel (its padding is the dialog too, so test the box)
+  const r = aboutDlg.getBoundingClientRect();
+  if (e.target.closest('.x') || e.detail && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) aboutDlg.close();   // detail 0 = keyboard, no position
+});
 const IC_R = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>', IC_L = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>';   // Lucide arrows
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const qs = new URLSearchParams(location.search);
@@ -261,6 +337,7 @@ const bg = $('bg'), word0 = $('word0'), eyebrow = $('eyebrow'), flare = $('flare
   scaleCtl = $('scaleCtl'), scaleNote = $('scaleNote'), mlabs = $('mlabs'), tourBtn = $('tourBtn'), tourHint = $('tourHint');
 const touchUI = matchMedia('(hover: none)').matches;
 if (touchUI) hint.textContent = 'Drag to spin · tap the planet to explore · swipe up for the next step';
+const HINT = hint.textContent;
 
 /* ======================================================================
    Scene: one renderer, one orthographic camera in CSS pixels, nine worlds
@@ -602,7 +679,7 @@ function applySkin(body) {
   makeDust(body);
   fitWord();
   mapNote = noteFor(cur);
-  document.title = `${body.name} — Solar System`;
+  document.title = `${body.name} — Firstlight`;
   if (new URLSearchParams(location.search).get('body') !== body.id) history.pushState(null, '', `?body=${body.id}`);
 }
 function fitWord() {
@@ -638,9 +715,9 @@ function pick(i) {
   destName.style.fontSize = `min(${9.2 * Math.min(1, 12 / s.name.length)}vw, 19vh)`;
   region.textContent = s.name.toUpperCase();
   if (!s.photo && !hasLandImg && !isClouds && cur.mapUrl) {
-    const sw = W * 2.6, sh = sw / 2;
+    const sw = Math.max(W, H) * 2.6, sh = sw / 2;   // portrait: size by height or the map won't cover the screen
     land.style.backgroundImage = `url("${cur.mapUrl}")`;
-    land.style.backgroundSize = `${sw}px ${sh}px`;
+    land.style.backgroundSize = `${sw}px ${sh}px`; land.style.backgroundRepeat = 'repeat-x';   // the map wraps at ±180°
     land.style.backgroundPosition = `${W / 2 - s.u * sw}px ${H / 2 - s.v * sh}px`;
   }
 }
@@ -652,8 +729,15 @@ function subsolar(d = new Date()) {
   const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)) / rad, gmst = 280.46061837 + 360.98564736629 * n;
   return {lat: Math.asin(Math.sin(eps) * Math.sin(lam)) / rad, lon: (((ra - gmst) % 360) + 540) % 360 - 180};
 }
-{ const s = subsolar(new Date(Date.UTC(2025, 5, 21, 12))); console.assert(Math.abs(s.lat - 23.44) < .1 && Math.abs(s.lon) < 1, 'subsolar()', s); }
-const noteFor = w => w.placeholder ? `Stand-in map · drop ${w.body.map} into the folder for the real surface` : eraI >= 0 ? 'Ancient Earth: C. R. Scotese, PALEOMAP Project · CC BY 4.0' : w.live ? w.liveNote : '';
+{ const s = subsolar(new Date(Date.UTC(2025, 5, 21, 12))); console.assert(Math.abs(s.lat - 23.44) < .1 && Math.abs(s.lon) < 1, 'self-check failed: subsolar()', s); }
+// re-aim the sunlight and restamp the clock; called on entry and once a minute while the world is on screen
+function refreshLive(w) {
+  const s = subsolar(), d = new Date();
+  w.live = dirLL(s.lat, s.lon); w.liveAt = +d;
+  w.liveNote = `Day and night as they are right now · ${d.toISOString().slice(11, 16)} UTC · Earthquakes: USGS · ISS orbit: CelesTrak`;
+  if (w === cur && eraI < 0 && !w.placeholder && (mode === 'in' || mode === 'ex')) mapNote = w.liveNote;
+}
+const noteFor = w => w.placeholder ? 'Stand-in surface · the real map could not load' : eraI >= 0 ? 'Ancient Earth: C. R. Scotese, PALEOMAP Project · CC BY 4.0' : w.live ? w.liveNote : '';
 const liveSun = new THREE.Vector3();
 
 /* ---------- Earth through time: swap the surface for a reconstruction of that age ---------- */
@@ -682,7 +766,7 @@ let GEO = null, geoHot = null, geoK = 0;
 const eraCtl = $('eraCtl'), geoEl = $('geo'), geoV = new THREE.Vector3();
 function loadGeo(url) {
   GEO = [];
-  fetch(url).then(r => r.json()).then(list => {
+  getJSON(url).then(list => {
     for (const c of list) {
       let a = 180, b = -180, lo = 90, hi = -90;
       for (const r of c.r) for (let i = 0; i < r.length; i += 2) { a = Math.min(a, r[i]); b = Math.max(b, r[i]); lo = Math.min(lo, r[i + 1]); hi = Math.max(hi, r[i + 1]); }
@@ -713,6 +797,30 @@ function geoDirs(c) {
     return out;
   }));
 }
+
+/* ---------- live Earth (earth-live.js): quakes and the ISS on the globe, and a card for any tapped spot ---------- */
+let quakeK = 0, quakeHot = null, PLACE = null, placeK = 0;
+const qinfo = $('qinfo'), qV = new THREE.Vector3(), placeEl = $('place'), placeV = new THREE.Vector3();
+// screen point -> where it lands on the current globe (null off the disc)
+function screenLL(x, y) {
+  const gx = (x - cx) / R, gy = (cy - y) / R, g2 = gx * gx + gy * gy;
+  if (g2 >= .97) return null;
+  const dir = new THREE.Vector3(gx, gy, Math.sqrt(1 - g2)).applyAxisAngle(XA, -cur.pitch).applyAxisAngle(YA, -cur.yaw);
+  return {dir, lat: Math.asin(dir.y) * 180 / Math.PI, lon: (Math.atan2(dir.z, -dir.x) * 180 / Math.PI + 360) % 360 - 180};
+}
+function placeAt({lat, lon, dir}) {
+  const c = GEO && GEO.length ? geoAt(lat, lon) : null;
+  const p = PLACE = {lat, lon, dir, name: c ? c.n : 'Open water', sub: c && c.c ? c.c : '', wx: null, err: false, shown: ''};
+  drawPlace();
+  weatherAt(lat, lon).then(j => { if (PLACE === p) { p.wx = j; drawPlace(); } }).catch(() => { if (PLACE === p) { p.err = true; drawPlace(); } });
+}
+function drawPlace() {
+  const p = PLACE, key = p && `${p.err}|${localTime(p.wx)}`;
+  if (!p || key === p.shown) return;                              // the DOM is only rewritten when the minute or the state changes
+  p.shown = key;
+  placeEl.innerHTML = placeCard(p, IC_R);
+}
+placeEl.addEventListener('click', e => { if (e.target.closest('.x')) PLACE = null; else if (e.target.closest('.go')) { PLACE = null; go(1); } });
 
 /* ---------- moons ---------- */
 const moonCache = {};
@@ -767,11 +875,12 @@ function enter(w) {
   cur = w; mode = 'in'; zt0 = performance.now(); leaving = false; pendingBody = null;
   st = from = to = 0; sel = 0; focusMoon = null;
   if (w.body.liveSun) {
-    const s = subsolar();
-    w.live = dirLL(s.lat, s.lon); w.yaw = faceYaw(w.live) + .8;      // open on the day side with the night edge in view
+    refreshLive(w); w.yaw = faceYaw(w.live) + .8;      // open on the day side with the night edge in view
     w.liveK = 1;
-    w.liveNote = `Day and night as they are right now · ${new Date().toISOString().slice(11, 16)} UTC`;
+    loadLive();
   }
+  PLACE = null;
+  hint.textContent = !w.body.liveSun ? HINT : touchUI ? 'Drag to spin · tap anywhere for its weather · swipe up for the sites' : 'Drag to spin · click anywhere for its time and weather';
   if (w.body.geo && !GEO) loadGeo(w.body.geo);
   setAct('in');
   applySkin(w.body);
@@ -856,6 +965,7 @@ addEventListener('wheel', e => {
 }, {passive: false});
 addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('wa-slider, wa-radio-group')) return;
+  if (aboutDlg.open) return;                                       // the about panel owns the keyboard while it's open
   if (mode === 'universe') {
     const i = Math.round(ux * ULAST), now = performance.now();
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { if (i === ULAST) expand(); else umoveTo((i + 1) / ULAST, now); }
@@ -904,7 +1014,10 @@ const endDrag = e => {
   else if (mode === 'ex') {
     const hm = cur.moons && st < .02 && cur.moons.find(m => m.sx !== undefined && Math.hypot(e.clientX - m.sx, e.clientY - m.sy) < Math.max(m.rp * 1.8, 18));
     if (hm) focus(hm);
-    else if (Math.hypot(e.clientX - cx, e.clientY - cy) < R && to < 2) { if (focusMoon) unfocus(); else go(to + 1); }
+    else if (Math.hypot(e.clientX - cx, e.clientY - cy) < R && to < 2) {
+      const ll = cur.body.liveSun && eraI < 0 && st < .02 && !focusMoon && screenLL(e.clientX, e.clientY);
+      if (focusMoon) unfocus(); else if (ll) placeAt(ll); else go(to + 1);   // today's Earth: a tap asks about that spot
+    }
   }
 };
 glCanvas.addEventListener('pointerup', endDrag);
@@ -953,7 +1066,7 @@ function render(now) {
     zoomK = 1 - io(seg(now, zt0, zt0 + (reduced ? 1 : ZOOM_OUT)));
     if (zoomK <= 0) {
       hideMoons();
-      mode = 'hub'; cur = null; setAct('hub'); document.title = 'Solar System'; if (!pendingBody && location.search.includes('body=')) history.pushState(null, '', location.pathname);
+      mode = 'hub'; cur = null; setAct('hub'); document.title = 'Firstlight'; if (!pendingBody && location.search.includes('body=')) history.pushState(null, '', location.pathname);
       note.textContent = stdNote();
       if (pendingBody) enter(WORLDS.find(w => w.body === pendingBody));
     }
@@ -1058,7 +1171,9 @@ function render(now) {
         }
       }
     } else { w.yaw += dt * (.12 + w.hover * .3); if (w.body) w.pitch += (w.body.restPitch - w.pitch) * f(2); }
-    w.tilt.rotation.x = w.pitch; w.spin.rotation.y = w.yaw; w.cloudSpin.rotation.y = t * .01;
+    w.tilt.rotation.x = w.pitch; w.spin.rotation.y = w.yaw;
+    w.cloudSpin.rotation.y = w.body && w.body.liveSun ? 0 : t * .01;   // a "right now" Earth keeps its weather over the same ground
+    if (w.live && w === cur && Date.now() - w.liveAt > 6e4) refreshLive(w);
     if (w.live) {     // real sunlight on the globe view, easing back to studio light for the region and the descent
       liveSun.copy(w.live).applyAxisAngle(YA, w.yaw).applyAxisAngle(XA, w.pitch);
       w.liveK = mix(w.liveK, eraI < 0 ? 1 : 0, f(4));                 // ancient Earth is shown fully lit
@@ -1133,12 +1248,12 @@ function render(now) {
     const ww = word0.offsetWidth, wh = word0.offsetHeight;
     const wide = W > 760 && !portrait;
     const wx = portrait ? 0 : -a * .08 * W - (wide ? (1 - a) * .11 * W : 0);
-    const wy = portrait ? H * -.1 + R * 1.08 + wh * .5 : mouseY * -6;
+    const wy = portrait ? H * -.1 + R * 1.08 + wh * .5 + 24 : mouseY * -6;   // +24: room for the eyebrow above the word
     const I = (1 - iw) * 50;
     word0.style.transform = `translate(calc(-50% + ${wx}px), calc(-50% + ${wy}px))`;
     word0.style.clipPath = `inset(-10% ${I}% -10% ${I}%)`;
     word0.style.opacity = (1 - seg(a, .1, .5)) * zoomK;
-    if (portrait) eyebrow.style.transform = `translate(-50%, ${wy + wh / 2 + 14}px)`;
+    if (portrait) eyebrow.style.transform = `translate(-50%, calc(-100% + ${wy - wh / 2 - 8}px))`;
     else eyebrow.style.transform = `translate(${wx - ww / 2 + ww * .02}px, calc(-100% + ${wy - wh / 2 - 34}px))`;
     eyebrow.style.opacity = iw * (1 - seg(a, .05, .35));
     about.style.opacity = iw * (1 - seg(a, 0, .3));
@@ -1151,6 +1266,7 @@ function render(now) {
     hint.style.opacity = iw * .8 * (1 - seg(a, 0, .25));
     const pd = regionDir.clone().applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
     pin.style.left = (cx + pd.x * R - 6) + 'px'; pin.style.top = (cy - pd.y * R - 8) + 'px';
+    pin.classList.toggle('flip', cx + pd.x * R + pin.offsetWidth > W - 12);   // label goes left of the dot near the right edge
     pin.style.opacity = seg(pd.z, .22, .42) * (mode === 'ex' ? seg(age, .2, .7) : 0) * (1 - seg(a, 0, .3)) * (eraI < 0 ? 1 : 0);
 
     // the country under the pointer (on touch screens: under the centre of the globe)
@@ -1164,12 +1280,13 @@ function render(now) {
     }
     if (geoNow && geoNow !== geoHot) { geoHot = geoNow; geoEl.textContent = geoHot.c ? `${geoHot.n} · ${geoHot.c}` : geoHot.n; }
     geoK += ((geoNow ? 1 : 0) - geoK) * f(12);
-    geoEl.style.opacity = geoK;
+    geoEl.style.opacity = PLACE ? 0 : geoK;                         // the place card already names the country
     geoEl.style.transform = touchUI ? `translate(${cx}px, ${cy - R - 34}px) translateX(-50%)` : `translate(${mx + 16}px, ${my + 18}px)`;
 
     const ka = seg(a, .45, 1);
     word1.style.opacity = ka * (1 - seg(b, .02, .16));
-    word1.style.transform = `translate(calc(-50% + ${portrait ? 0 : .02 * W + (1 - out(ka)) * 40}px), ${portrait ? .46 * H : .56 * H}px)`;
+    const w1k = portrait ? Math.min(1, W * .78 / (word1.offsetWidth || 1)) : 1;   // long region names shrink to fit a phone
+    word1.style.transform = `translate(calc(-50% + ${portrait ? 0 : .02 * W + (1 - out(ka)) * 40}px), ${portrait ? .46 * H : .56 * H}px) scale(${w1k})`;
 
     const so = seg(a, .55, 1) * (1 - seg(b, 0, .14));
     sites.style.opacity = card.style.opacity = so;
@@ -1225,6 +1342,83 @@ function render(now) {
       dctx.stroke();
       if (touchUI) { dctx.beginPath(); dctx.arc(cx, cy, 5, 0, 6.2832); dctx.stroke(); }
     }
+
+    // live Earth, on the planet page only: today's earthquakes on the surface, the ISS at its real height
+    const liveK = cur.body.liveSun && eraI < 0 && mode === 'ex' && !focusMoon ? zoomK * (1 - seg(a, 0, .3)) : 0;
+    const toScreen = (d, k = 1) => qV.copy(d).multiplyScalar(k).applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
+    const behind = v => v.z < 0 && v.x * v.x + v.y * v.y < 1;      // hidden by the globe
+    let qNow = null;
+    if (liveK > .01 && live.quakes) {
+      const px = touchUI ? cx : mx, py = touchUI ? cy : my;          // touch: whatever sits under the centre of the globe
+      let best = touchUI ? 16 : 10;
+      dctx.fillStyle = dctx.strokeStyle = '#ff8a3d'; dctx.lineWidth = 1.2;
+      for (const q of live.quakes) {
+        const v = toScreen(q.dir); if (v.z < .05) continue;
+        const x = cx + v.x * R, y = cy - v.y * R, r = 1.6 + Math.max(0, q.mag - 2.5) * 1.5, age = (Date.now() - q.time) / 864e5;
+        const k = liveK * seg(v.z, .05, .3);
+        dctx.globalAlpha = k * mix(1, .5, clamp(age)); dctx.beginPath(); dctx.arc(x, y, r, 0, 6.2832); dctx.fill();
+        if (age < 1 / 6 && !reduced) {                                 // the last four hours ripple
+          const p = (t * .5 + q.seed) % 1;
+          dctx.globalAlpha = k * (1 - p) * .8; dctx.beginPath(); dctx.arc(x, y, r + p * 16, 0, 6.2832); dctx.stroke();
+        }
+        const dd = Math.hypot(px - x, py - y) - r;
+        if (dd < best) { best = dd; qNow = {q, x, y, r}; }
+      }
+    }
+    if (liveK > .01 && live.iss && live.iss.el) {
+      const nowMs = Date.now(), p = satPos(live.iss.el, nowMs), k = 1 + p.alt / 6371;
+      dctx.globalAlpha = liveK * .45; dctx.strokeStyle = '#fff'; dctx.lineWidth = 1; dctx.setLineDash([2, 5]); dctx.beginPath();
+      let pen = false;
+      for (let i = 0; i <= 93; i++) {                                // one orbit ahead, about 93 minutes
+        const s = satPos(live.iss.el, nowMs + i * 6e4), v = toScreen(dirLL(s.lat, s.lon), k);
+        if (behind(v)) { pen = false; continue; }
+        const x = cx + v.x * R, y = cy - v.y * R;
+        if (pen) dctx.lineTo(x, y); else dctx.moveTo(x, y);
+        pen = true;
+      }
+      dctx.stroke(); dctx.setLineDash([]);
+      const v = toScreen(dirLL(p.lat, p.lon), k);
+      if (!behind(v)) {
+        const x = cx + v.x * R, y = cy - v.y * R;
+        dctx.globalAlpha = liveK; dctx.fillStyle = '#fff';
+        dctx.beginPath(); dctx.arc(x, y, 3.5, 0, 6.2832); dctx.fill();
+        dctx.globalAlpha = liveK * .35; dctx.beginPath(); dctx.arc(x, y, 7 + Math.sin(t * 3) * 1.5, 0, 6.2832); dctx.stroke();
+        dctx.globalAlpha = liveK; dctx.font = '600 10px Montserrat, system-ui, sans-serif'; dctx.textBaseline = 'middle';
+        const left = x > cx;                                         // label on the outer side, away from the about panel
+        dctx.textAlign = left ? 'right' : 'left'; dctx.fillText(`ISS · ${Math.round(p.alt)} km up`, x + (left ? -13 : 13), y); dctx.textAlign = 'left';
+      }
+    }
+    if (qNow && qNow.q !== quakeHot) {
+      quakeHot = qNow.q;
+      qinfo.innerHTML = `<b>M${quakeHot.mag.toFixed(1)}</b>${esc(quakeHot.place)}<span>${ago(quakeHot.time)} · ${Math.round(quakeHot.depth)} km deep</span>`;
+    }
+    quakeK += ((qNow ? 1 : 0) - quakeK) * f(12);
+    qinfo.style.opacity = quakeK * liveK;
+    if (qNow) qinfo.style.transform = `translate(${clamp(qNow.x, 130, W - 130)}px, ${qNow.y - qNow.r - 10}px) translate(-50%, -100%)`;
+    if (qNow && !touchUI) geoEl.style.opacity = 0;                  // the quake card takes the pointer's label slot
+
+    // the tapped place: a pin that turns with the globe, and its card
+    if (PLACE && (st > .5 || eraI >= 0)) PLACE = null;
+    let pinOn = false;
+    if (PLACE && liveK > .01) {
+      const v = placeV.copy(PLACE.dir).applyAxisAngle(YA, cur.yaw).applyAxisAngle(XA, cur.pitch);
+      const x = cx + v.x * R, y = cy - v.y * R;
+      pinOn = v.z > .05;
+      if (pinOn) {
+        dctx.globalAlpha = liveK * seg(v.z, .05, .3); dctx.fillStyle = dctx.strokeStyle = '#fff'; dctx.lineWidth = 1.5;
+        dctx.beginPath(); dctx.arc(x, y, 4.5, 0, 6.2832); dctx.fill();
+        dctx.beginPath(); dctx.arc(x, y, 9 + (reduced ? 0 : (t * 8) % 8), 0, 6.2832); dctx.stroke();
+      }
+      drawPlace();                                                    // ticks the local clock once a minute
+      if (!portrait) {
+        const left = x > cx, w = placeEl.offsetWidth, h = placeEl.offsetHeight;
+        placeEl.style.transform = `translate(${clamp(left ? x - 22 - w : x + 22, 16, W - w - 16)}px, ${clamp(y - h / 2, 80, H - h - 60)}px)`;
+      }
+    }
+    placeK += ((PLACE && (pinOn || portrait) ? 1 : 0) - placeK) * f(10);
+    placeEl.style.opacity = placeK * liveK;
+    placeEl.style.pointerEvents = placeK * liveK > .5 ? 'auto' : 'none';
+    placeEl.style.visibility = placeK * liveK < .01 ? 'hidden' : 'visible';
   } else {
     glCanvas.style.pointerEvents = 'auto';
     if (DEBUG) document.title = `dbg mode=${mode} ux=${ux.toFixed(2)} ustage=${ustage} hubScale=${hubScale.toFixed(2)} scale=${scaleMode} tour=${tour ? tour.i : '-'}`;
